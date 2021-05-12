@@ -1,0 +1,63 @@
+/*------------------------------------------------------------------------------
+Copyright 2021 Garmin Ltd. or its subsidiaries.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+------------------------------------------------------------------------------*/
+
+/**
+    @file
+    Contains functionality to format date/time, depth, and location.
+
+    Copyright 2018-2020 by Garmin Ltd. or its subsidiaries.
+*/
+
+#ifndef ACDB_StringFormatter_hpp
+#define ACDB_StringFormatter_hpp
+
+#include <string>
+#include "ACDB_pub_types.h"
+#include "Acdb/PrvTypes.hpp"
+#include "NavDateTime.h"
+
+namespace Acdb {
+class StringFormatter {
+ public:
+  StringFormatter(StringFormatter const&) = delete;
+  StringFormatter(StringFormatter&&) = delete;
+  StringFormatter& operator=(StringFormatter const&) = delete;
+  StringFormatter& operator=(StringFormatter&&) = delete;
+
+  static StringFormatter& GetInstance();
+
+  std::string FormatPosition(const scposn_type& aPosn) const;
+
+  std::string FormatDepthValue(const double aMeters) const;
+
+  std::string FormatDate(const uint64_t aUnixTimestamp) const;
+
+  std::string FormatDate(const std::string& aIso8601DateTimeStr) const;
+
+  virtual ~StringFormatter() = default;
+
+ private:
+  StringFormatter();
+
+  std::string GetDateString(const Navionics::NavDateTime& aNavDateTime) const;
+
+  std::string GetDegreesMinutesString(const double aDegrees) const;
+
+  std::string GetDegreesMinutesSecondsString(const double aDegrees) const;
+};  // end of class StringFormatter
+}  // end of namespace Acdb
+
+#endif  // end of StringFormatter_hpp
