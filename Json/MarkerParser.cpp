@@ -434,18 +434,20 @@ static bool CheckMarkerDeleted(const rapidjson::Value& aDocument, const char* aN
 //----------------------------------------------------------------
 static bool GetMarkerType(const rapidjson::Value& aDocument, const char* aNodeName,
                           ACDB_type_type& aOutput) {
-  static const std::map<std::string, ACDB_type_type> typeMap = {{"Unknown", ACDB_UNKNOWN_TYPE},
-                                                                {"Anchorage", ACDB_ANCHORAGE},
-                                                                {"Hazard", ACDB_HAZARD},
-                                                                {"Marina", ACDB_MARINA},
-                                                                {"BoatRamp", ACDB_BOAT_RAMP},
-                                                                {"Business", ACDB_BUSINESS},
-                                                                {"Inlet", ACDB_INLET},
-                                                                {"Bridge", ACDB_BRIDGE},
-                                                                {"Lock", ACDB_LOCK},
-                                                                {"Dam", ACDB_DAM},
-                                                                {"Ferry", ACDB_FERRY},
-                                                                {"Airport", ACDB_AIRPORT}};
+  static const std::map<std::string, ACDB_type_type> typeMap = {
+      {"Unknown", ACDB_UNKNOWN_TYPE},
+      {"Anchorage", ACDB_ANCHORAGE},
+      {"Hazard", ACDB_HAZARD},
+      {"Marina", ACDB_MARINA},
+      {"BoatRamp", ACDB_BOAT_RAMP},
+      {"Business", ACDB_BUSINESS},
+      {"Inlet", ACDB_INLET},
+      {"Bridge", ACDB_BRIDGE},
+      {"Lock", ACDB_LOCK},
+      {"Dam", ACDB_DAM},
+      {"Ferry", ACDB_FERRY},
+      {"Airport", ACDB_UNKNOWN_TYPE}  // Deprecated type
+  };
 
   std::string typeStr;
   if (!GetString(aDocument, aNodeName, typeStr)) {

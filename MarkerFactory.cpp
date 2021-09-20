@@ -19,7 +19,7 @@ limitations under the License.
     @brief contains functionality related to
     generating ActiveCaptain objects
 
-    Copyright 2017-2020 by Garmin Ltd. or its subsidiaries.
+    Copyright 2017-2021 by Garmin Ltd. or its subsidiaries.
 */
 
 #define DBG_MODULE "ACDB"
@@ -61,8 +61,7 @@ TextHandle GetMarkerTypeTextHandle(ACDB_type_type aMarkerType) {
        {ACDB_BRIDGE, TextHandle::BridgeValue},
        {ACDB_LOCK, TextHandle::LockValue},
        {ACDB_DAM, TextHandle::DamValue},
-       {ACDB_FERRY, TextHandle::FerryValue},
-       {ACDB_AIRPORT, TextHandle::AirportValue}});
+       {ACDB_FERRY, TextHandle::FerryValue}});
 
   TextHandle markerTypeTextHandle = TextHandle::UnknownValue;
   auto it = markerTypeTextHandles.find(aMarkerType);
@@ -141,8 +140,7 @@ static MapIconType GetMapIcon(ACDB_type_type aMarkerType, int aBusinessProgramTi
       {ACDB_BRIDGE, MapIconType::Bridge},
       {ACDB_LOCK, MapIconType::Lock},
       {ACDB_DAM, MapIconType::Dam},
-      {ACDB_FERRY, MapIconType::Ferry},
-      {ACDB_AIRPORT, MapIconType::Airport}};
+      {ACDB_FERRY, MapIconType::Ferry}};
 
   MapIconType mapIconType = MapIconType::Unknown;
 

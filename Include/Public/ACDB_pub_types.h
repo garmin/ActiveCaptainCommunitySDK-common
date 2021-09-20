@@ -26,6 +26,8 @@ limitations under the License.
                            GENERAL INCLUDES
 --------------------------------------------------------------------*/
 
+#include <stdbool.h>
+#include <stdint.h>
 #include "GRM_pub.h"
 
 #ifdef __cplusplus
@@ -69,7 +71,7 @@ enum {
   ACDB_LOCK = 1 << 10,
   ACDB_DAM = 1 << 11,
   ACDB_FERRY = 1 << 12,
-  ACDB_AIRPORT = 1 << 13,
+  // ACDB_AIRPORT = 1 << 13,           -> deprecated type.
 
   // Leave most significant but clear to avoid an "ISO C restricts enumerator values..." error.
   ACDB_ALL_TYPES = 0x7FFFFFFF
@@ -174,7 +176,6 @@ typedef struct {
 } ACDB_marker_filter_type;
 
 typedef int32_t ACDB_text_handle_type;
-
 
 /*--------------------------------------------------------------------
                            PROJECT INCLUDES

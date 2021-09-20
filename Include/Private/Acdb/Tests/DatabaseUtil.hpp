@@ -18,7 +18,7 @@ limitations under the License.
     @file
     @brief Database utility functions for tests
 
-    Copyright 2017-2020 by Garmin Ltd. or its subsidiaries.
+    Copyright 2017-2021 by Garmin Ltd. or its subsidiaries.
 */
 
 #ifndef ACDB_DatabaseUtil_hpp
@@ -41,6 +41,8 @@ std::vector<ReviewTableDataCollection> GetReviewsTableDataCollection();
 void PopulateDatabase(TF_state_type* aState, SQLite::Database& aDatabase);
 
 void PopulateTilesTable(TF_state_type* aState, SQLite::Database& aDatabase);
+
+void PopulateTileLastUpdateTable(TF_state_type* aState, SQLite::Database& aDatabase);
 
 void PopulateTranslationsTable(TF_state_type* aState, SQLite::Database& aDatabase);
 

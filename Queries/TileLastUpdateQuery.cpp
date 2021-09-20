@@ -18,7 +18,7 @@ limitations under the License.
     @file
     Class to represent a specific set of queries
 
-    Copyright 2017-2020 by Garmin Ltd. or its subsidiaries.
+    Copyright 2017-2021 by Garmin Ltd. or its subsidiaries.
 */
 
 #define DBG_MODULE "ACDB"
@@ -116,15 +116,21 @@ bool TileLastUpdateQuery::Get(const TileXY& aTileXY, LastUpdateInfoType& aResult
     mRead->bind(Parameters::TileX, aTileXY.mX);
     mRead->bind(Parameters::TileY, aTileXY.mY);
 
-    success = mRead->executeStep();
-    if (success) {
+    if (mRead->executeStep()) {
       aResultOut.mMarkerLastUpdate =
           static_cast<uint64_t>(mRead->getColumn(Columns::MarkerLastUpdate).getInt64());
       aResultOut.mUserReviewLastUpdate =
           static_cast<uint64_t>(mRead->getColumn(Columns::ReviewLastUpdate).getInt64());
+    } else {
+      aResultOut.mMarkerLastUpdate = 0;
+      aResultOut.mUserReviewLastUpdate = 0;
     }
 
     mRead->reset();
+
+    // This is still a success even if there was no result -- a tile may have been added to our
+    // coverage.
+    success = true;
   } catch (const SQLite::Exception& e) {
     DBG_W("SQLite Exception: %i %s", e.getErrorCode(), e.getErrorStr());
     success = false;

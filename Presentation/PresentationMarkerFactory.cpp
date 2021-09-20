@@ -110,9 +110,8 @@ static std::vector<YesNoUnknownNearbyFieldPair> GetYesNoUnknownNearbyFieldPairs(
 
 static bool IsCommentsSectionType(ACDB_type_type aType);
 
-static const ACDB_type_type COMMENTS_SECTION_TYPES = ACDB_AIRPORT | ACDB_BOAT_RAMP | ACDB_BRIDGE |
-                                                     ACDB_DAM | ACDB_FERRY | ACDB_HAZARD |
-                                                     ACDB_INLET | ACDB_LOCK;
+static const ACDB_type_type COMMENTS_SECTION_TYPES =
+    ACDB_BOAT_RAMP | ACDB_BRIDGE | ACDB_DAM | ACDB_FERRY | ACDB_HAZARD | ACDB_INLET | ACDB_LOCK;
 
 //----------------------------------------------------------------
 //!

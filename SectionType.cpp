@@ -19,7 +19,7 @@ limitations under the License.
     @brief Contains functionality related to
     ActiveCaptain section types.
 
-    Copyright 2017-2020 by Garmin Ltd. or its subsidiaries.
+    Copyright 2017-2021 by Garmin Ltd. or its subsidiaries.
 */
 
 #define DBG_MODULE "ACDB"
@@ -99,8 +99,7 @@ SectionType SectionType::GetRequiredSections(ACDB_type_type aMarkerType) {
       {ACDB_BRIDGE, requiredForAll | Contact | Navigation},
       {ACDB_LOCK, requiredForAll | Contact | Navigation},
       {ACDB_DAM, requiredForAll},
-      {ACDB_FERRY, requiredForAll | Contact},
-      {ACDB_AIRPORT, requiredForAll}};
+      {ACDB_FERRY, requiredForAll | Contact}};
 
   SectionType requiredSections(None);
 

@@ -14,12 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ------------------------------------------------------------------------------*/
 
-
 /**
     @file
     @brief Encapsulates all update-related operations
 
-    Copyright 2017-2020 by Garmin Ltd. or its subsidiaries.
+    Copyright 2017-2021 by Garmin Ltd. or its subsidiaries.
 */
 
 #define DBG_MODULE "ACDB"
@@ -124,11 +123,15 @@ bool UpdateAdapter::DeleteTileReviews(const TileXY& aTileXY) {
 
   LastUpdateInfoType lastUpdateInfo;
   if (mTileLastUpdate.Get(aTileXY, lastUpdateInfo)) {
-    // Only zero out mUserReviewLastUpdate if the read was successful.  If not, the row was deleted,
-    // which is fine.
-
-    lastUpdateInfo.mUserReviewLastUpdate = 0;
-    success = success && mTileLastUpdate.Write(aTileXY, lastUpdateInfo);
+    // If there are still markers for this tile, zero out the review last update.  Otherwise, make
+    // sure the row for this tile is deleted.
+    if (lastUpdateInfo.mMarkerLastUpdate != 0) {
+      lastUpdateInfo.mUserReviewLastUpdate = 0;
+      success = success && mTileLastUpdate.Write(aTileXY, lastUpdateInfo);
+    } else if (lastUpdateInfo.mUserReviewLastUpdate != 0) {
+      DBG_W("Found tileLastUpdate row with reviews but no markers.");
+      success = success && mTileLastUpdate.Delete(aTileXY);
+    }
   }
 
   return success;

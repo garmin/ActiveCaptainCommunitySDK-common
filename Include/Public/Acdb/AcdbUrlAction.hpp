@@ -18,7 +18,7 @@ limitations under the License.
     @file
     Functions for processing acdb:// URLs.
 
-    Copyright 2019-2020 by Garmin Ltd. or its subsidiaries.
+    Copyright 2019-2021 by Garmin Ltd. or its subsidiaries.
 */
 
 #ifndef ACDB_AcdbUrlAction_hpp
@@ -40,6 +40,16 @@ class AcdbUrlAction {
   enum class ActionType { Edit, ReportReview, SeeAll, ShowPhotos, ShowSummary, VoteReview };
 
   AcdbUrlAction(ActionType aAction);
+
+  virtual ~AcdbUrlAction() = default;
+
+  AcdbUrlAction(const AcdbUrlAction& aAcdbUrlAction) = default;
+
+  AcdbUrlAction& operator=(const AcdbUrlAction& aAcdbUrlAction) = default;
+
+  AcdbUrlAction(AcdbUrlAction&& aAcdbUrlAction) = default;
+
+  AcdbUrlAction& operator=(AcdbUrlAction&& aAcdbUrlAction) = default;
 
   ActionType GetAction() const;
 

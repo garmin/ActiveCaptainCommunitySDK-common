@@ -18,7 +18,7 @@ limitations under the License.
     @file
     @brief Database utility functions for tests
 
-    Copyright 2017-2020 by Garmin Ltd. or its subsidiaries.
+    Copyright 2017-2021 by Garmin Ltd. or its subsidiaries.
 */
 
 #define DBG_MODULE "ACDB"
@@ -474,6 +474,8 @@ void PopulateDatabase(TF_state_type* aState, SQLite::Database& aDatabase) {
   // Add Business Program entry for POI 3
   BusinessProgramTableDataType businessProgramTableData{3, "", 3};
   TF_assert(aState, businessProgramQuery.Write(3, std::move(businessProgramTableData)));
+
+  PopulateTileLastUpdateTable(aState, aDatabase);
 }  // end of PopulateDatabase
 
 //----------------------------------------------------------------
@@ -516,6 +518,29 @@ void PopulateTilesTable(TF_state_type* aState, SQLite::Database& aDatabase) {
     }
   }
 }  // end of PopulateTilesTable
+
+//----------------------------------------------------------------
+//!
+//!   @public
+//!   @detail
+//!         Add test data to the database.  Values are used by
+//!         multiple tests.  Modify with caution.
+//!
+//----------------------------------------------------------------
+void PopulateTileLastUpdateTable(TF_state_type* aState, SQLite::Database& aDatabase) {
+  SQLite::Statement insertTileLastUpdate{
+      aDatabase,
+      "INSERT OR REPLACE INTO tileLastUpdate (tileX, tileY, markerLastUpdate, reviewLastUpdate) "
+      "SELECT t.tileX, t.tileY, COALESCE(MAX(m.lastUpdate), 0) AS markerLastUpdate, "
+      "COALESCE(MAX(r.lastUpdate), 0) AS reviewLastUpdate "
+      "FROM tiles t "
+      "LEFT JOIN markers m ON m.geohash BETWEEN t.geohashStart AND t.geohashEnd "
+      "LEFT JOIN reviews r ON r.markerId = m.Id GROUP BY t.tileX, t.tileY "
+      "HAVING markerLastUpdate != 0 OR reviewLastUpdate != 0"};
+
+  TF_assert(aState, SQLITE_DONE == insertTileLastUpdate.tryExecuteStep());
+  insertTileLastUpdate.reset();
+}  // end of PopulateTileLastUpdateTable
 
 //----------------------------------------------------------------
 //!

@@ -18,7 +18,7 @@ limitations under the License.
     @file
     @brief Regression tests for the database
 
-    Copyright 2017-2020 by Garmin Ltd. or its subsidiaries.
+    Copyright 2017-2021 by Garmin Ltd. or its subsidiaries.
 */
 
 #define DBG_MODULE "ACDB"
@@ -1077,21 +1077,29 @@ TF_TEST("acdb.database_tile_last_update") {
   LastUpdateInfoType expected = lastUpdateInfoType;
   LastUpdateInfoType actual;
 
+  LastUpdateInfoType expectedDefault;
+  expectedDefault.mMarkerLastUpdate = 0;
+  expectedDefault.mUserReviewLastUpdate = 0;
+  LastUpdateInfoType actualDefault;
+  LastUpdateInfoType actualDefault2;
+
   // ----------------------------------------------------------
   // Act
   // ----------------------------------------------------------
-  TF_assert_msg(state, tileLastUpdateQuery.Get(tileXY, actual) == false,
-                "TileLastUpdate Get: expected false.");  // Should not exist yet.
+  TF_assert_msg(state, tileLastUpdateQuery.Get(tileXY, actualDefault),
+                "TileLastUpdate Get default");
   TF_assert_msg(state, tileLastUpdateQuery.Write(tileXY, std::move(lastUpdateInfoType)),
                 "TileLastUpdate Write");
   TF_assert_msg(state, tileLastUpdateQuery.Get(tileXY, actual), "TileLastUpdate Get");
   TF_assert_msg(state, tileLastUpdateQuery.Delete(tileXY), "TileLastUpdate Delete");
-  TF_assert_msg(state, tileLastUpdateQuery.Get(tileXY, actual) == false,
+  TF_assert_msg(state, tileLastUpdateQuery.Get(tileXY, actualDefault2),
                 "TileLastUpdate not deleted");
 
   // ----------------------------------------------------------
   // Assert
   // ----------------------------------------------------------
+  TF_assert_msg(state, expectedDefault == actualDefault, "TileLastUpdate");
+  TF_assert_msg(state, expectedDefault == actualDefault2, "TileLastUpdate");
   TF_assert_msg(state, expected == actual, "TileLastUpdate");
 }
 

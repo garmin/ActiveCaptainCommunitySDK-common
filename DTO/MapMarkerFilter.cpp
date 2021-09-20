@@ -19,7 +19,7 @@ limitations under the License.
     @brief Contains functionality related to filtering
     ActiveCaptain searches
 
-    Copyright 2017-2020 by Garmin Ltd. or its subsidiaries.
+    Copyright 2017-2021 by Garmin Ltd. or its subsidiaries.
 */
 
 #define DBG_MODULE "ACDB"
@@ -58,7 +58,6 @@ MapMarkerFilter::MapMarkerFilter(ACDB_marker_filter_type const* aFilter)
     mTypesBitmask |= ACDB_LOCK;
     mTypesBitmask |= ACDB_DAM;
     mTypesBitmask |= ACDB_FERRY;
-    mTypesBitmask |= ACDB_AIRPORT;
   }
 }
 
@@ -68,7 +67,7 @@ MapMarkerFilter::MapMarkerFilter(ACDB_marker_filter_type const* aFilter)
 //!   @brief Default Constructor
 //!
 //----------------------------------------------------------------
-MapMarkerFilter::MapMarkerFilter() : mBbox{0}, mTypesBitmask(0) {}
+MapMarkerFilter::MapMarkerFilter() : mBbox{{0}}, mTypesBitmask(0) {}
 
 //----------------------------------------------------------------
 //!

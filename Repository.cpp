@@ -24,10 +24,12 @@ limitations under the License.
 #define DBG_MODULE "ACDB"
 #define DBG_TAG "Repository"
 
+#include <iterator>
 #include <map>
 #include <memory>
 #include <set>
 #include <time.h>
+#include <utility>
 #include <vector>
 
 #include "DBG_pub.h"

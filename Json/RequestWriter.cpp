@@ -18,7 +18,7 @@ limitations under the License.
 @file
 Definition of the RequestWriter.
 
-Copyright 2018-2020 by Garmin Ltd. or its subsidiaries.
+Copyright 2018-2021 by Garmin Ltd. or its subsidiaries.
 */
 
 #define DBG_MODULE "ACDB"
@@ -54,7 +54,7 @@ static std::string GetMarkerTypeName(ACDB_type_type aType) {
       {ACDB_ANCHORAGE, "Anchorage"}, {ACDB_HAZARD, "Hazard"},     {ACDB_MARINA, "Marina"},
       {ACDB_BOAT_RAMP, "BoatRamp"},  {ACDB_BUSINESS, "Business"}, {ACDB_INLET, "Inlet"},
       {ACDB_BRIDGE, "Bridge"},       {ACDB_LOCK, "Lock"},         {ACDB_DAM, "Dam"},
-      {ACDB_FERRY, "Ferry"},         {ACDB_AIRPORT, "Airport"}};
+      {ACDB_FERRY, "Ferry"}};
 
   auto it = TypeNameMap.find(aType);
   if (it != TypeNameMap.end()) {

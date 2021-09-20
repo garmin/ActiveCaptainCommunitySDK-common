@@ -18,7 +18,7 @@ limitations under the License.
 @file
 Definition of the MapIconType.
 
-Copyright 2018-2020 by Garmin Ltd. or its subsidiaries.
+Copyright 2018-2021 by Garmin Ltd. or its subsidiaries.
 */
 
 #ifndef ACDB_MapIconType_hpp
@@ -37,7 +37,6 @@ enum class MapIconType {
   Lock,
   Dam,
   Ferry,
-  Airport,
 
   AnchorageSponsor,
   BusinessSponsor,

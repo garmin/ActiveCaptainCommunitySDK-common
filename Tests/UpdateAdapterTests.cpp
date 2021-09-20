@@ -18,12 +18,13 @@ limitations under the License.
     @file
     @brief Regression tests for the UpdateAdapter
 
-    Copyright 2019-2020 by Garmin Ltd. or its subsidiaries.
+    Copyright 2019-2021 by Garmin Ltd. or its subsidiaries.
 */
 
 #define DBG_MODULE "ACDB"
 #define DBG_TAG "UpdateAdapterTests"
 
+#include "Acdb/InfoAdapter.hpp"
 #include "Acdb/UpdateAdapter.hpp"
 #include "Acdb/PresentationAdapter.hpp"
 #include "Acdb/Presentation/PresentationMarker.hpp"
@@ -176,6 +177,7 @@ TF_TEST("acdb.updateadapter.delete_tile") {
 
   PopulateDatabase(state, database);
 
+  InfoAdapter infoAdapter{database};
   UpdateAdapter updateAdapter{database};
   PresentationAdapter presentationAdapter{database};
 
@@ -191,19 +193,28 @@ TF_TEST("acdb.updateadapter.delete_tile") {
   std::vector<MarkerTableDataCollection> markerUpdates;
   markerUpdates.push_back(std::move(markerUpdate));
 
+  TileXY tileXY{1, 1};
+  LastUpdateInfoType lastUpdateInfo;
+
   // ----------------------------------------------------------
   // Act
   // ----------------------------------------------------------
-  TF_assert_msg(state, updateAdapter.DeleteTile(TileXY(1, 1)), "Delete tile");
+  TF_assert_msg(state, updateAdapter.DeleteTile(tileXY), "Delete tile");
 
   PresentationMarkerPtr actualDeleted = presentationAdapter.GetMarker(1);
   PresentationMarkerPtr actualNotDeleted = presentationAdapter.GetMarker(2);
+
+  TF_assert_msg(state, infoAdapter.GetTileLastUpdateInfo(tileXY, lastUpdateInfo), "Delete tile");
 
   // ----------------------------------------------------------
   // Assert
   // ----------------------------------------------------------
   TF_assert_msg(state, actualDeleted == nullptr, "Delete tile: Expected nullptr");
   TF_assert_msg(state, actualNotDeleted != nullptr, "Delete tile: Unexpected nullptr");
+  TF_assert_msg(state, lastUpdateInfo.mMarkerLastUpdate == 0,
+                "Delete tile: Expected 0 in tileLastUpdate markers");
+  TF_assert_msg(state, lastUpdateInfo.mUserReviewLastUpdate == 0,
+                "Delete tile: Expected 0 in tileLastUpdate reviews");
 }
 
 //----------------------------------------------------------------
@@ -221,6 +232,7 @@ TF_TEST("acdb.updateadapter.delete_tile_reviews") {
 
   PopulateDatabase(state, database);
 
+  InfoAdapter infoAdapter{database};
   UpdateAdapter updateAdapter{database};
   PresentationAdapter presentationAdapter{database};
 
@@ -236,13 +248,19 @@ TF_TEST("acdb.updateadapter.delete_tile_reviews") {
   std::vector<MarkerTableDataCollection> markerUpdates;
   markerUpdates.push_back(std::move(markerUpdate));
 
+  TileXY tileXY{1, 1};
+  LastUpdateInfoType lastUpdateInfo;
+
   // ----------------------------------------------------------
   // Act
   // ----------------------------------------------------------
-  TF_assert_msg(state, updateAdapter.DeleteTileReviews(TileXY(1, 1)), "Delete tile reviews");
+  TF_assert_msg(state, updateAdapter.DeleteTileReviews(tileXY), "Delete tile reviews");
 
   PresentationMarkerPtr actual = presentationAdapter.GetMarker(1);
   PresentationMarkerPtr actual2 = presentationAdapter.GetMarker(2);
+
+  TF_assert_msg(state, infoAdapter.GetTileLastUpdateInfo(tileXY, lastUpdateInfo),
+                "Delete tile reviews");
 
   // ----------------------------------------------------------
   // Assert
@@ -261,6 +279,10 @@ TF_TEST("acdb.updateadapter.delete_tile_reviews") {
                 "Delete tile reviews: Unexpected nullptr");
   TF_assert_msg(state, actual2->GetReviewDetail()->GetReviewSummary()->GetReviewCount() > 0,
                 "Delete tile reviews: Expected nonzero");
+  TF_assert_msg(state, lastUpdateInfo.mMarkerLastUpdate != 0,
+                "Delete tile reviews: Expected nonzero in tileLastUpdate markers");
+  TF_assert_msg(state, lastUpdateInfo.mUserReviewLastUpdate == 0,
+                "Delete tile reviews: Expected 0 in tileLastUpdate reviews");
 }
 
 //----------------------------------------------------------------
