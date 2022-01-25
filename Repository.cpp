@@ -1046,7 +1046,7 @@ bool Repository::PrepareSharedDb(const std::string& aPath) const {
 //!
 //----------------------------------------------------------------
 void Repository::SetLanguage(const std::string& aLanguage) {
-  RwlLocker locker{mRwl, false};
+  RwlLocker locker{mRwl, true};
   if (mDatabase) {
     mTranslationAdapter->InitTextTranslator(aLanguage);
   }
