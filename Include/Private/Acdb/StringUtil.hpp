@@ -50,6 +50,8 @@ std::string ToLower(const std::string& aStr);
 
 std::string ToUpper(const std::string& aStr);
 
+void HtmlEscape(std::string& aStr);
+
 }  // end of namespace String
 }  // end of namespace Acdb
 

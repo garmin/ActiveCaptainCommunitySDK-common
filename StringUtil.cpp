@@ -188,5 +188,24 @@ std::string ToUpper(const std::string& aStr) {
   return result;
 }  // end of ToUpper()
 
+//----------------------------------------------------------------
+//!
+//!   @public
+//!   @brief modifies aStr to encode the following characters as follows
+//!      "&" to "&apos;"
+//!      "<" to "&lt;"
+//!      ">" to "&gt;"
+//!      "\"" to "&quot;"
+//!      "'" to "&#39;"
+//!
+//----------------------------------------------------------------
+void HtmlEscape(std::string& aStr) {
+  Replace(aStr, "&", "&amp;");
+  Replace(aStr, "<", "&lt;");
+  Replace(aStr, ">", "&gt;");
+  Replace(aStr, "\"", "&quot;");
+  Replace(aStr, "'", "&#39;");
+}
+
 }  // end of namespace String
 }  // end of namespace Acdb
