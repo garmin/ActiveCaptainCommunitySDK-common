@@ -500,9 +500,9 @@ void PopulateTilesTable(TF_state_type* aState, SQLite::Database& aDatabase) {
     for (int x = 0; x < 16; x++) {
       insertTile.bind(TileParameters::TileX, x);
       insertTile.bind(TileParameters::TileY, y);
-      insertTile.bind(TileParameters::GeohashStart, static_cast<long long>(GetGeohashStart(x, y)));
+      insertTile.bind(TileParameters::GeohashStart, static_cast<int64_t>(GetGeohashStart(x, y)));
       insertTile.bind(TileParameters::GeohashEnd,
-                      static_cast<long long>(GetGeohashStart(x, y) + 999));
+                      static_cast<int64_t>(GetGeohashStart(x, y) + 999));
 
       insertTileRIndex.bind(TileRIndexParameters::Id, (y * 16) + x);
       insertTileRIndex.bind(TileRIndexParameters::MinLon, x * 100);

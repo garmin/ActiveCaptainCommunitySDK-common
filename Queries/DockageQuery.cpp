@@ -77,7 +77,7 @@ bool DockageQuery::Delete(const ACDB_marker_idx_type aId) {
   bool success = false;
 
   try {
-    mDelete->bind(Parameters::Id, static_cast<long long>(aId));
+    mDelete->bind(Parameters::Id, static_cast<int64_t>(aId));
 
     mDelete->exec();
     success = mDelete->isDone();
@@ -107,8 +107,8 @@ bool DockageQuery::Delete(const uint64_t aGeohashStart, const uint64_t aGeohashE
   bool success = false;
 
   try {
-    mDeleteGeohash->bind(Parameters::GeohashStart, static_cast<long long>(aGeohashStart));
-    mDeleteGeohash->bind(Parameters::GeohashEnd, static_cast<long long>(aGeohashEnd));
+    mDeleteGeohash->bind(Parameters::GeohashStart, static_cast<int64_t>(aGeohashStart));
+    mDeleteGeohash->bind(Parameters::GeohashEnd, static_cast<int64_t>(aGeohashEnd));
 
     mDeleteGeohash->exec();
     success = mDeleteGeohash->isDone();
@@ -147,7 +147,7 @@ bool DockageQuery::Get(const ACDB_marker_idx_type aId, DockageTableDataType& aRe
   bool success = false;
 
   try {
-    mRead->bind(Parameters::Id, static_cast<long long>(aId));
+    mRead->bind(Parameters::Id, static_cast<int64_t>(aId));
 
     success = mRead->executeStep();
     if (success) {
@@ -194,7 +194,7 @@ bool DockageQuery::Write(const ACDB_marker_idx_type aId, DockageTableDataType&& 
   bool success = false;
 
   try {
-    mWrite->bind(Parameters::Id, static_cast<long long>(aId));
+    mWrite->bind(Parameters::Id, static_cast<int64_t>(aId));
     mWrite->bind(Parameters::SectionTitle, aDockageTableData.mSectionTitle);
     mWrite->bind(Parameters::CommaSeparatedList, aDockageTableData.mYesNoMultiValueJson);
     mWrite->bind(Parameters::Price, aDockageTableData.mAttributePriceJson);

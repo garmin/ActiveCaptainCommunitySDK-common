@@ -43,9 +43,8 @@ class SearchMarkerQuery {
                    std::vector<ExtendedMarkerDataType>& aResultOut);
 
  private:
-  std::unique_ptr<SQLite::Statement> mRead;
+  SQLite::Database& mDatabase;
 
-  std::unique_ptr<SQLite::Statement> mReadFiltered;
 };  // end of class SearchMarkerQuery
 }  // end of namespace Acdb
 

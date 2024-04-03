@@ -69,16 +69,8 @@ static const std::string ReadFilteredSql{
 //!   @detail Create SearchMarker query object.
 //!
 //----------------------------------------------------------------
-SearchMarkerQuery::SearchMarkerQuery(SQLite::Database& aDatabase) {
-  try {
-    mRead.reset(new SQLite::Statement{aDatabase, ReadSql});
-    mReadFiltered.reset(new SQLite::Statement{aDatabase, ReadFilteredSql});
-  } catch (const SQLite::Exception& e) {
-    DBG_W("SQLite Exception: %i %s", e.getErrorCode(), e.getErrorStr());
-    mRead.reset();
-    mReadFiltered.reset();
-  }
-}  // End of SearchMarkerQuery
+SearchMarkerQuery::SearchMarkerQuery(SQLite::Database& aDatabase)
+    : mDatabase{aDatabase} {}  // End of SearchMarkerQuery
 
 //----------------------------------------------------------------
 //!
@@ -106,60 +98,55 @@ bool SearchMarkerQuery::Get(const ACDB_marker_idx_type aId, ExtendedMarkerDataTy
     VolumeUnit
   };
 
-  if (!mRead) {
-    return false;
-  }
-
   bool success = false;
 
   try {
-    mRead->bind(Parameters::Id, static_cast<long long>(aId));
+    SQLite::Statement read{mDatabase, ReadSql};
+    read.bind(Parameters::Id, static_cast<int64_t>(aId));
 
-    success = mRead->executeStep();
+    success = read.executeStep();
     if (success) {
-      aResultOut.mId = mRead->getColumn(Columns::ColId).getInt64();
-      aResultOut.mType = mRead->getColumn(Columns::PoiType).getInt();
-      aResultOut.mLastUpdated = mRead->getColumn(Columns::LastUpdate).getInt64();
-      aResultOut.mName = mRead->getColumn(Columns::Name).getText();
-      aResultOut.mPosn.lon = mRead->getColumn(Columns::MinLon).getUInt();
-      aResultOut.mPosn.lat = mRead->getColumn(Columns::MinLat).getUInt();
-      aResultOut.mBusinessProgramTier = mRead->getColumn(Columns::ProgramTier).getInt();
+      aResultOut.mId = read.getColumn(Columns::ColId).getInt64();
+      aResultOut.mType = read.getColumn(Columns::PoiType).getInt();
+      aResultOut.mLastUpdated = read.getColumn(Columns::LastUpdate).getInt64();
+      aResultOut.mName = read.getColumn(Columns::Name).getText();
+      aResultOut.mPosn.lon = read.getColumn(Columns::MinLon).getUInt();
+      aResultOut.mPosn.lat = read.getColumn(Columns::MinLat).getUInt();
+      aResultOut.mBusinessProgramTier = read.getColumn(Columns::ProgramTier).getInt();
 
-      if (!mRead->isColumnNull(Columns::AvgRating)) {
+      if (!read.isColumnNull(Columns::AvgRating)) {
         aResultOut.mReviewStatsData.mAverageRating =
-            static_cast<float>(mRead->getColumn(Columns::AvgRating).getDouble());
+            static_cast<float>(read.getColumn(Columns::AvgRating).getDouble());
       }
 
-      if (!mRead->isColumnNull(Columns::ReviewCount)) {
+      if (!read.isColumnNull(Columns::ReviewCount)) {
         aResultOut.mReviewStatsData.mNumberOfReviews =
-            mRead->getColumn(Columns::ReviewCount).getInt();
+            read.getColumn(Columns::ReviewCount).getInt();
       }
 
-      if (!mRead->isColumnNull(Columns::Phone)) {
-        aResultOut.mContactData.mPhoneNumber = mRead->getColumn(Columns::Phone).getText();
+      if (!read.isColumnNull(Columns::Phone)) {
+        aResultOut.mContactData.mPhoneNumber = read.getColumn(Columns::Phone).getText();
       }
 
-      if (!mRead->isColumnNull(Columns::VhfChannel)) {
-        aResultOut.mContactData.mVhfChannel = mRead->getColumn(Columns::VhfChannel).getText();
+      if (!read.isColumnNull(Columns::VhfChannel)) {
+        aResultOut.mContactData.mVhfChannel = read.getColumn(Columns::VhfChannel).getText();
       }
 
-      if (!mRead->isColumnNull(Columns::Currency) && !mRead->isColumnNull(Columns::VolumeUnit)) {
-        if (!mRead->isColumnNull(Columns::GasPrice)) {
+      if (!read.isColumnNull(Columns::Currency) && !read.isColumnNull(Columns::VolumeUnit)) {
+        if (!read.isColumnNull(Columns::GasPrice)) {
           aResultOut.mFuelData.mGasPrice =
-              static_cast<float>(mRead->getColumn(Columns::GasPrice).getDouble());
+              static_cast<float>(read.getColumn(Columns::GasPrice).getDouble());
         }
 
-        if (!mRead->isColumnNull(Columns::DieselPrice)) {
+        if (!read.isColumnNull(Columns::DieselPrice)) {
           aResultOut.mFuelData.mDieselPrice =
-              static_cast<float>(mRead->getColumn(Columns::DieselPrice).getDouble());
+              static_cast<float>(read.getColumn(Columns::DieselPrice).getDouble());
         }
 
-        aResultOut.mFuelData.mFuelPriceCurrency = mRead->getColumn(Columns::Currency).getText();
-        aResultOut.mFuelData.mFuelPriceUnit = mRead->getColumn(Columns::VolumeUnit).getUInt();
+        aResultOut.mFuelData.mFuelPriceCurrency = read.getColumn(Columns::Currency).getText();
+        aResultOut.mFuelData.mFuelPriceUnit = read.getColumn(Columns::VolumeUnit).getUInt();
       }
     }
-
-    mRead->reset();
   } catch (const SQLite::Exception& e) {
     DBG_W("SQLite Exception: %i %s", e.getErrorCode(), e.getErrorStr());
     success = false;
@@ -195,21 +182,17 @@ bool SearchMarkerQuery::GetFiltered(const SearchMarkerFilter& aFilter,
     Currency,
     VolumeUnit
   };
-
-  if (!mReadFiltered) {
-    return false;
-  }
-
   bool success = false;
 
   try {
-    mReadFiltered->bind(Parameters::MinLon, aFilter.GetBbox().swc.lon);
-    mReadFiltered->bind(Parameters::MaxLon, aFilter.GetBbox().nec.lon);
-    mReadFiltered->bind(Parameters::MinLat, aFilter.GetBbox().swc.lat);
-    mReadFiltered->bind(Parameters::MaxLat, aFilter.GetBbox().nec.lat);
-    mReadFiltered->bind(Parameters::PoiType, aFilter.GetAllowedTypes());
-    mReadFiltered->bind(Parameters::SearchFilter,
-                        static_cast<long long>(aFilter.GetAllowedCategories()));
+    SQLite::Statement readFiltered{mDatabase, ReadFilteredSql};
+    readFiltered.bind(Parameters::MinLon, aFilter.GetBbox().swc.lon);
+    readFiltered.bind(Parameters::MaxLon, aFilter.GetBbox().nec.lon);
+    readFiltered.bind(Parameters::MinLat, aFilter.GetBbox().swc.lat);
+    readFiltered.bind(Parameters::MaxLat, aFilter.GetBbox().nec.lat);
+    readFiltered.bind(Parameters::PoiType, aFilter.GetAllowedTypes());
+    readFiltered.bind(Parameters::SearchFilter,
+                      static_cast<int64_t>(aFilter.GetAllowedCategories()));
 
     const std::string WILDCARD{"%"};
     std::string searchExpression;
@@ -222,59 +205,57 @@ bool SearchMarkerQuery::GetFiltered(const SearchMarkerFilter& aFilter,
       searchExpression = WILDCARD + aFilter.GetSearchString() + WILDCARD;
     }
 
-    mReadFiltered->bind(Parameters::Name, searchExpression);
-    mReadFiltered->bind(Parameters::Limit, aFilter.GetMaxResults());
+    readFiltered.bind(Parameters::Name, searchExpression);
+    readFiltered.bind(Parameters::Limit, aFilter.GetMaxResults());
 
-    while (mReadFiltered->executeStep()) {
+    while (readFiltered.executeStep()) {
       ExtendedMarkerDataType result;
-      result.mId = mReadFiltered->getColumn(Columns::ColId).getInt64();
-      result.mType = mReadFiltered->getColumn(Columns::ColPoiType).getInt();
-      result.mLastUpdated = mReadFiltered->getColumn(Columns::LastUpdate).getInt64();
-      result.mName = mReadFiltered->getColumn(Columns::ColName).getText();
-      result.mPosn.lon = mReadFiltered->getColumn(Columns::ColMinLon).getUInt();
-      result.mPosn.lat = mReadFiltered->getColumn(Columns::ColMinLat).getUInt();
-      result.mBusinessProgramTier = mReadFiltered->getColumn(Columns::ProgramTier).getInt();
+      result.mId = readFiltered.getColumn(Columns::ColId).getInt64();
+      result.mType = readFiltered.getColumn(Columns::ColPoiType).getInt();
+      result.mLastUpdated = readFiltered.getColumn(Columns::LastUpdate).getInt64();
+      result.mName = readFiltered.getColumn(Columns::ColName).getText();
+      result.mPosn.lon = readFiltered.getColumn(Columns::ColMinLon).getUInt();
+      result.mPosn.lat = readFiltered.getColumn(Columns::ColMinLat).getUInt();
+      result.mBusinessProgramTier = readFiltered.getColumn(Columns::ProgramTier).getInt();
 
-      if (!mReadFiltered->isColumnNull(Columns::AvgRating)) {
+      if (!readFiltered.isColumnNull(Columns::AvgRating)) {
         result.mReviewStatsData.mAverageRating =
-            static_cast<float>(mReadFiltered->getColumn(Columns::AvgRating).getDouble());
+            static_cast<float>(readFiltered.getColumn(Columns::AvgRating).getDouble());
       }
 
-      if (!mReadFiltered->isColumnNull(Columns::ReviewCount)) {
+      if (!readFiltered.isColumnNull(Columns::ReviewCount)) {
         result.mReviewStatsData.mNumberOfReviews =
-            mReadFiltered->getColumn(Columns::ReviewCount).getInt();
+            readFiltered.getColumn(Columns::ReviewCount).getInt();
       }
 
-      if (!mReadFiltered->isColumnNull(Columns::Phone)) {
-        result.mContactData.mPhoneNumber = mReadFiltered->getColumn(Columns::Phone).getText();
+      if (!readFiltered.isColumnNull(Columns::Phone)) {
+        result.mContactData.mPhoneNumber = readFiltered.getColumn(Columns::Phone).getText();
       }
 
-      if (!mReadFiltered->isColumnNull(Columns::VhfChannel)) {
-        result.mContactData.mVhfChannel = mReadFiltered->getColumn(Columns::VhfChannel).getText();
+      if (!readFiltered.isColumnNull(Columns::VhfChannel)) {
+        result.mContactData.mVhfChannel = readFiltered.getColumn(Columns::VhfChannel).getText();
       }
 
-      if (!mReadFiltered->isColumnNull(Columns::Currency) &&
-          !mReadFiltered->isColumnNull(Columns::VolumeUnit)) {
-        if (!mReadFiltered->isColumnNull(Columns::GasPrice)) {
+      if (!readFiltered.isColumnNull(Columns::Currency) &&
+          !readFiltered.isColumnNull(Columns::VolumeUnit)) {
+        if (!readFiltered.isColumnNull(Columns::GasPrice)) {
           result.mFuelData.mGasPrice =
-              static_cast<float>(mReadFiltered->getColumn(Columns::GasPrice).getDouble());
+              static_cast<float>(readFiltered.getColumn(Columns::GasPrice).getDouble());
         }
 
-        if (!mReadFiltered->isColumnNull(Columns::DieselPrice)) {
+        if (!readFiltered.isColumnNull(Columns::DieselPrice)) {
           result.mFuelData.mDieselPrice =
-              static_cast<float>(mReadFiltered->getColumn(Columns::DieselPrice).getDouble());
+              static_cast<float>(readFiltered.getColumn(Columns::DieselPrice).getDouble());
         }
 
-        result.mFuelData.mFuelPriceCurrency = mReadFiltered->getColumn(Columns::Currency).getText();
-        result.mFuelData.mFuelPriceUnit = mReadFiltered->getColumn(Columns::VolumeUnit).getUInt();
+        result.mFuelData.mFuelPriceCurrency = readFiltered.getColumn(Columns::Currency).getText();
+        result.mFuelData.mFuelPriceUnit = readFiltered.getColumn(Columns::VolumeUnit).getUInt();
       }
 
       aResultOut.push_back(std::move(result));
     }
 
     success = !aResultOut.empty();
-
-    mReadFiltered->reset();
   } catch (const SQLite::Exception& e) {
     DBG_W("SQLite Exception: %i %s", e.getErrorCode(), e.getErrorStr());
     success = false;

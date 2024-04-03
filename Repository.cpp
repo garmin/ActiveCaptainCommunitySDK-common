@@ -716,7 +716,14 @@ void Repository::GetTilesLastUpdateInfoByBoundingBoxes(
   RwlLocker locker{mRwl, false};
   if (mDatabase) {
     for (auto bbox : aBboxes) {
-      mInfoAdapter->GetTileLastUpdateInfoBbox(bbox, aTiles);
+      bbox_type leftBbox;
+      bbox_type rightBbox;
+      if (MakeSplitBoundingBoxForCrossMeridianSearch(bbox, leftBbox, rightBbox)) {
+        mInfoAdapter->GetTileLastUpdateInfoBbox(leftBbox, aTiles);
+        mInfoAdapter->GetTileLastUpdateInfoBbox(rightBbox, aTiles);
+      } else {
+        mInfoAdapter->GetTileLastUpdateInfoBbox(bbox, aTiles);
+      }
     }
   }
 }  // end of GetTilesLastUpdateInfoByBoundingBoxes
@@ -780,12 +787,6 @@ bool Repository::Open() {
 //!       @returns if the open was successful
 //----------------------------------------------------------------
 bool Repository::OpenDatabase(bool updateStateOnFailure) {
-  DBG_ASSERT(!mDatabase, "Database already open");
-  if (mDatabase) {
-    // the database is already open. Nothing to do.
-    return true;
-  }
-
   bool success{true};
   bool notCompatible{false};
 
@@ -812,6 +813,11 @@ bool Repository::OpenDatabase(bool updateStateOnFailure) {
   }
 
   RwlLocker locker{mRwl, true};
+
+  if (mDatabase) {
+    // the database is already open. Nothing to do.
+    return true;
+  }
 
   // Open database file
   if (success) {

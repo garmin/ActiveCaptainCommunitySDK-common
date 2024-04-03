@@ -89,7 +89,7 @@ bool ReviewQuery::Delete(const ACDB_review_idx_type aId) {
   bool success = false;
 
   try {
-    mDelete->bind(Parameters::Id, static_cast<long long>(aId));
+    mDelete->bind(Parameters::Id, static_cast<int64_t>(aId));
 
     mDelete->exec();
     success = mDelete->isDone();
@@ -119,8 +119,8 @@ bool ReviewQuery::Delete(const uint64_t aGeohashStart, const uint64_t aGeohashEn
   bool success = false;
 
   try {
-    mDeleteGeohash->bind(Parameters::GeohashStart, static_cast<long long>(aGeohashStart));
-    mDeleteGeohash->bind(Parameters::GeohashEnd, static_cast<long long>(aGeohashEnd));
+    mDeleteGeohash->bind(Parameters::GeohashStart, static_cast<int64_t>(aGeohashStart));
+    mDeleteGeohash->bind(Parameters::GeohashEnd, static_cast<int64_t>(aGeohashEnd));
 
     mDeleteGeohash->exec();
     success = mDeleteGeohash->isDone();
@@ -150,7 +150,7 @@ bool ReviewQuery::DeleteMarker(const ACDB_marker_idx_type aMarkerId) {
   bool success = false;
 
   try {
-    mDeleteMarker->bind(Parameters::MarkerId, static_cast<long long>(aMarkerId));
+    mDeleteMarker->bind(Parameters::MarkerId, static_cast<int64_t>(aMarkerId));
 
     mDeleteMarker->exec();
     success = mDeleteMarker->isDone();
@@ -191,7 +191,7 @@ bool ReviewQuery::Get(const ACDB_marker_idx_type aMarkerId, ReviewTableDataType&
   bool success = false;
 
   try {
-    mRead->bind(Parameters::MarkerId, static_cast<long long>(aMarkerId));
+    mRead->bind(Parameters::MarkerId, static_cast<int64_t>(aMarkerId));
 
     success = mRead->executeStep();
     if (success) {
@@ -280,7 +280,7 @@ bool ReviewQuery::GetList(const ACDB_marker_idx_type aMarkerId, const std::strin
   bool success = false;
 
   try {
-    mReadList->bind(Parameters::MarkerId, static_cast<long long>(aMarkerId));
+    mReadList->bind(Parameters::MarkerId, static_cast<int64_t>(aMarkerId));
     mReadList->bind(Parameters::Captain, aCaptain);
     mReadList->bind(Parameters::Limit, aPageSize);
     mReadList->bind(Parameters::Offset, (aPageNumber - 1) * aPageSize);
@@ -340,14 +340,14 @@ bool ReviewQuery::Write(const ACDB_review_idx_type aId, ReviewTableDataType&& aR
   bool success = false;
 
   try {
-    mWrite->bind(Parameters::ReviewId, static_cast<long long>(aId));
-    mWrite->bind(Parameters::MarkerId, static_cast<long long>(aReviewTableData.mMarkerId));
+    mWrite->bind(Parameters::ReviewId, static_cast<int64_t>(aId));
+    mWrite->bind(Parameters::MarkerId, static_cast<int64_t>(aReviewTableData.mMarkerId));
     mWrite->bind(Parameters::Rating, aReviewTableData.mRating);
     mWrite->bind(Parameters::Title, aReviewTableData.mTitle);
     mWrite->bind(Parameters::Date, aReviewTableData.mDate);
     mWrite->bind(Parameters::Captain, aReviewTableData.mCaptain);
     mWrite->bind(Parameters::Review, aReviewTableData.mReview);
-    mWrite->bind(Parameters::LastUpdate, static_cast<long long>(aReviewTableData.mLastUpdated));
+    mWrite->bind(Parameters::LastUpdate, static_cast<int64_t>(aReviewTableData.mLastUpdated));
     mWrite->bind(Parameters::Votes, aReviewTableData.mVotes);
     mWrite->bind(Parameters::Response, aReviewTableData.mResponse);
 

@@ -76,7 +76,7 @@ bool MooringsQuery::Delete(const ACDB_marker_idx_type aId) {
   bool success = false;
 
   try {
-    mDelete->bind(Parameters::Id, static_cast<long long>(aId));
+    mDelete->bind(Parameters::Id, static_cast<int64_t>(aId));
 
     mDelete->exec();
     success = mDelete->isDone();
@@ -106,8 +106,8 @@ bool MooringsQuery::Delete(const uint64_t aGeohashStart, const uint64_t aGeohash
   bool success = false;
 
   try {
-    mDeleteGeohash->bind(Parameters::GeohashStart, static_cast<long long>(aGeohashStart));
-    mDeleteGeohash->bind(Parameters::GeohashEnd, static_cast<long long>(aGeohashEnd));
+    mDeleteGeohash->bind(Parameters::GeohashStart, static_cast<int64_t>(aGeohashStart));
+    mDeleteGeohash->bind(Parameters::GeohashEnd, static_cast<int64_t>(aGeohashEnd));
 
     mDeleteGeohash->exec();
     success = mDeleteGeohash->isDone();
@@ -138,7 +138,7 @@ bool MooringsQuery::Get(const ACDB_marker_idx_type aId, MooringsTableDataType& a
   bool success = false;
 
   try {
-    mRead->bind(Parameters::Id, static_cast<long long>(aId));
+    mRead->bind(Parameters::Id, static_cast<int64_t>(aId));
 
     success = mRead->executeStep();
     if (success) {
@@ -175,7 +175,7 @@ bool MooringsQuery::Write(const ACDB_marker_idx_type aId,
   bool success = false;
 
   try {
-    mWrite->bind(Parameters::Id, static_cast<long long>(aId));
+    mWrite->bind(Parameters::Id, static_cast<int64_t>(aId));
     mWrite->bind(Parameters::SectionTitle, aMooringsTableData.mSectionTitle);
     mWrite->bind(Parameters::Price, aMooringsTableData.mYesNoPriceJson);
     mWrite->bind(Parameters::Labeled, aMooringsTableData.mAttributeFieldsJson);

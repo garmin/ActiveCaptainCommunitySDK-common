@@ -76,7 +76,7 @@ bool NavigationQuery::Delete(const ACDB_marker_idx_type aId) {
   bool success = false;
 
   try {
-    mDelete->bind(Parameters::Id, static_cast<long long>(aId));
+    mDelete->bind(Parameters::Id, static_cast<int64_t>(aId));
 
     mDelete->exec();
     success = mDelete->isDone();
@@ -106,8 +106,8 @@ bool NavigationQuery::Delete(const uint64_t aGeohashStart, const uint64_t aGeoha
   bool success = false;
 
   try {
-    mDeleteGeohash->bind(Parameters::GeohashStart, static_cast<long long>(aGeohashStart));
-    mDeleteGeohash->bind(Parameters::GeohashEnd, static_cast<long long>(aGeohashEnd));
+    mDeleteGeohash->bind(Parameters::GeohashStart, static_cast<int64_t>(aGeohashStart));
+    mDeleteGeohash->bind(Parameters::GeohashEnd, static_cast<int64_t>(aGeohashEnd));
 
     mDeleteGeohash->exec();
     success = mDeleteGeohash->isDone();
@@ -138,7 +138,7 @@ bool NavigationQuery::Get(const ACDB_marker_idx_type aId, NavigationTableDataTyp
   bool success = false;
 
   try {
-    mRead->bind(Parameters::Id, static_cast<long long>(aId));
+    mRead->bind(Parameters::Id, static_cast<int64_t>(aId));
 
     success = mRead->executeStep();
     if (success) {
@@ -174,7 +174,7 @@ bool NavigationQuery::Write(const ACDB_marker_idx_type aId,
   bool success = false;
 
   try {
-    mWrite->bind(Parameters::Id, static_cast<long long>(aId));
+    mWrite->bind(Parameters::Id, static_cast<int64_t>(aId));
     mWrite->bind(Parameters::SectionTitle, aNavigationTableData.mSectionTitle);
     mWrite->bind(Parameters::Labeled, aNavigationTableData.mAttributeFieldsJson);
     mWrite->bind(Parameters::SectionNote, aNavigationTableData.mSectionNoteJson);

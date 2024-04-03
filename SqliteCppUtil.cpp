@@ -63,7 +63,7 @@ bool DropDatabaseFileExt(const std::string& aPath, const std::vector<std::string
   DBG_V("DropDatabaseFileExt(%s)", aPath.c_str());
 
   if (aPath.empty()) {
-    DBG_ASSERT_ALWAYS("Invalid database path.");
+    DBG_W("DropDatabaseFileExt() failed with an invalid database path.");
     return false;
   }
 

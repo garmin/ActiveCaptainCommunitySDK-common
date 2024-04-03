@@ -110,10 +110,10 @@ bool TilesQuery::GetBbox(const bbox_type& aBbox, std::vector<TileTableDataType>&
   bool success = false;
 
   try {
-    mReadBbox->bind(Parameters::MaxLon, static_cast<long long>(aBbox.swc.lon));
-    mReadBbox->bind(Parameters::MinLon, static_cast<long long>(aBbox.nec.lon));
-    mReadBbox->bind(Parameters::MaxLat, static_cast<long long>(aBbox.swc.lat));
-    mReadBbox->bind(Parameters::MinLat, static_cast<long long>(aBbox.nec.lat));
+    mReadBbox->bind(Parameters::MaxLon, static_cast<int64_t>(aBbox.swc.lon));
+    mReadBbox->bind(Parameters::MinLon, static_cast<int64_t>(aBbox.nec.lon));
+    mReadBbox->bind(Parameters::MaxLat, static_cast<int64_t>(aBbox.swc.lat));
+    mReadBbox->bind(Parameters::MinLat, static_cast<int64_t>(aBbox.nec.lat));
 
     while (mReadBbox->executeStep()) {
       TileTableDataType result;

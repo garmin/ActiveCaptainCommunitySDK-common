@@ -157,10 +157,10 @@ bool TileLastUpdateQuery::GetBbox(const bbox_type& aBbox,
   bool success = false;
 
   try {
-    mReadBbox->bind(Parameters::MaxLon, static_cast<long long>(aBbox.swc.lon));
-    mReadBbox->bind(Parameters::MinLon, static_cast<long long>(aBbox.nec.lon));
-    mReadBbox->bind(Parameters::MaxLat, static_cast<long long>(aBbox.swc.lat));
-    mReadBbox->bind(Parameters::MinLat, static_cast<long long>(aBbox.nec.lat));
+    mReadBbox->bind(Parameters::MaxLon, static_cast<int64_t>(aBbox.swc.lon));
+    mReadBbox->bind(Parameters::MinLon, static_cast<int64_t>(aBbox.nec.lon));
+    mReadBbox->bind(Parameters::MaxLat, static_cast<int64_t>(aBbox.swc.lat));
+    mReadBbox->bind(Parameters::MinLat, static_cast<int64_t>(aBbox.nec.lat));
 
     while (mReadBbox->executeStep()) {
       TileXY tileXY;
@@ -206,9 +206,9 @@ bool TileLastUpdateQuery::Write(const TileXY& aTileXY, const LastUpdateInfoType&
     mWrite->bind(Parameters::TileX, aTileXY.mX);
     mWrite->bind(Parameters::TileY, aTileXY.mY);
     mWrite->bind(Parameters::MarkerLastUpdate,
-                 static_cast<long long>(aLastUpdateInfo.mMarkerLastUpdate));
+                 static_cast<int64_t>(aLastUpdateInfo.mMarkerLastUpdate));
     mWrite->bind(Parameters::ReviewLastUpdate,
-                 static_cast<long long>(aLastUpdateInfo.mUserReviewLastUpdate));
+                 static_cast<int64_t>(aLastUpdateInfo.mUserReviewLastUpdate));
 
     success = mWrite->exec();
 

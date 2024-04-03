@@ -76,7 +76,7 @@ bool ContactQuery::Delete(const ACDB_marker_idx_type aId) {
   bool success = false;
 
   try {
-    mDelete->bind(Parameters::Id, static_cast<long long>(aId));
+    mDelete->bind(Parameters::Id, static_cast<int64_t>(aId));
 
     mDelete->exec();
     success = mDelete->isDone();
@@ -106,8 +106,8 @@ bool ContactQuery::Delete(const uint64_t aGeohashStart, const uint64_t aGeohashE
   bool success = false;
 
   try {
-    mDeleteGeohash->bind(Parameters::GeohashStart, static_cast<long long>(aGeohashStart));
-    mDeleteGeohash->bind(Parameters::GeohashEnd, static_cast<long long>(aGeohashEnd));
+    mDeleteGeohash->bind(Parameters::GeohashStart, static_cast<int64_t>(aGeohashStart));
+    mDeleteGeohash->bind(Parameters::GeohashEnd, static_cast<int64_t>(aGeohashEnd));
 
     mDeleteGeohash->exec();
     success = mDeleteGeohash->isDone();
@@ -138,7 +138,7 @@ bool ContactQuery::Get(const ACDB_marker_idx_type aId, ContactTableDataType& aRe
   bool success = false;
 
   try {
-    mRead->bind(Parameters::Id, static_cast<long long>(aId));
+    mRead->bind(Parameters::Id, static_cast<int64_t>(aId));
 
     success = mRead->executeStep();
     if (success) {
@@ -173,7 +173,7 @@ bool ContactQuery::Write(const ACDB_marker_idx_type aId, ContactTableDataType&& 
   bool success = false;
 
   try {
-    mWrite->bind(Parameters::Id, static_cast<long long>(aId));
+    mWrite->bind(Parameters::Id, static_cast<int64_t>(aId));
     mWrite->bind(Parameters::SectionTitle, aContactTableData.mSectionTitle);
     mWrite->bind(Parameters::Labeled, aContactTableData.mAttributeFieldsJson);
     mWrite->bind(Parameters::Phone, aContactTableData.mPhone);

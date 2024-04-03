@@ -76,7 +76,7 @@ bool FuelQuery::Delete(const ACDB_marker_idx_type aId) {
   bool success = false;
 
   try {
-    mDelete->bind(Parameters::Id, static_cast<long long>(aId));
+    mDelete->bind(Parameters::Id, static_cast<int64_t>(aId));
 
     mDelete->exec();
     success = mDelete->isDone();
@@ -106,8 +106,8 @@ bool FuelQuery::Delete(const uint64_t aGeohashStart, const uint64_t aGeohashEnd)
   bool success = false;
 
   try {
-    mDeleteGeohash->bind(Parameters::GeohashStart, static_cast<long long>(aGeohashStart));
-    mDeleteGeohash->bind(Parameters::GeohashEnd, static_cast<long long>(aGeohashEnd));
+    mDeleteGeohash->bind(Parameters::GeohashStart, static_cast<int64_t>(aGeohashStart));
+    mDeleteGeohash->bind(Parameters::GeohashEnd, static_cast<int64_t>(aGeohashEnd));
 
     mDeleteGeohash->exec();
     success = mDeleteGeohash->isDone();
@@ -149,7 +149,7 @@ bool FuelQuery::Get(const ACDB_marker_idx_type aId, FuelTableDataType& aResultOu
   bool success = false;
 
   try {
-    mRead->bind(Parameters::Id, static_cast<long long>(aId));
+    mRead->bind(Parameters::Id, static_cast<int64_t>(aId));
 
     success = mRead->executeStep();
     if (success) {
@@ -202,7 +202,7 @@ bool FuelQuery::Write(const ACDB_marker_idx_type aId, FuelTableDataType&& aFuelT
   bool success = false;
 
   try {
-    mWrite->bind(Parameters::Id, static_cast<long long>(aId));
+    mWrite->bind(Parameters::Id, static_cast<int64_t>(aId));
     mWrite->bind(Parameters::SectionTitle, aFuelTableData.mSectionTitle);
     mWrite->bind(Parameters::PriceList, aFuelTableData.mYesNoPriceJson);
     mWrite->bind(Parameters::YesNo, aFuelTableData.mYesNoJson);

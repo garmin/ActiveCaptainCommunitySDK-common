@@ -72,7 +72,7 @@ bool PositionQuery::Delete(const ACDB_marker_idx_type aId) {
   bool success = false;
 
   try {
-    mDelete->bind(Parameters::Id, static_cast<long long>(aId));
+    mDelete->bind(Parameters::Id, static_cast<int64_t>(aId));
 
     mDelete->exec();
     success = mDelete->isDone();
@@ -102,8 +102,8 @@ bool PositionQuery::Delete(const uint64_t aGeohashStart, const uint64_t aGeohash
   bool success = false;
 
   try {
-    mDeleteGeohash->bind(Parameters::GeohashStart, static_cast<long long>(aGeohashStart));
-    mDeleteGeohash->bind(Parameters::GeohashEnd, static_cast<long long>(aGeohashEnd));
+    mDeleteGeohash->bind(Parameters::GeohashStart, static_cast<int64_t>(aGeohashStart));
+    mDeleteGeohash->bind(Parameters::GeohashEnd, static_cast<int64_t>(aGeohashEnd));
 
     mDeleteGeohash->exec();
     success = mDeleteGeohash->isDone();
@@ -134,11 +134,17 @@ bool PositionQuery::Write(const ACDB_marker_idx_type aId, const scposn_type& aPo
   bool success = false;
 
   try {
-    mWrite->bind(Parameters::Id, static_cast<long long>(aId));
+    mWrite->bind(Parameters::Id, static_cast<int64_t>(aId));
     mWrite->bind(Parameters::MinLat, aPosn.lat);
-    mWrite->bind(Parameters::MinLon, aPosn.lon);
     mWrite->bind(Parameters::MaxLat, aPosn.lat + 1);
-    mWrite->bind(Parameters::MaxLon, aPosn.lon + 1);
+    // Ensure we don't overflow when binding MaxLon.
+    if (aPosn.lon == INT32_MAX) {
+      mWrite->bind(Parameters::MinLon, aPosn.lon - 1);
+      mWrite->bind(Parameters::MaxLon, aPosn.lon);
+    } else {
+      mWrite->bind(Parameters::MinLon, aPosn.lon);
+      mWrite->bind(Parameters::MaxLon, aPosn.lon + 1);
+    }
 
     success = mWrite->exec();
 

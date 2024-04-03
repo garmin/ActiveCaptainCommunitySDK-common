@@ -67,7 +67,7 @@ bool ReviewSummaryQuery::Get(const ACDB_marker_idx_type aId,
   bool success = false;
 
   try {
-    mRead->bind(Parameters::MarkerId, static_cast<long long>(aId));
+    mRead->bind(Parameters::MarkerId, static_cast<int64_t>(aId));
 
     success = mRead->executeStep();
     if (success) {

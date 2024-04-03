@@ -85,7 +85,7 @@ bool ReviewPhotoQuery::Delete(const ACDB_review_idx_type aId) {
   bool success = false;
 
   try {
-    mDelete->bind(Parameters::Id, static_cast<long long>(aId));
+    mDelete->bind(Parameters::Id, static_cast<int64_t>(aId));
 
     mDelete->exec();
     success = mDelete->isDone();
@@ -115,8 +115,8 @@ bool ReviewPhotoQuery::Delete(const uint64_t aGeohashStart, const uint64_t aGeoh
   bool success = false;
 
   try {
-    mDeleteGeohash->bind(Parameters::GeohashStart, static_cast<long long>(aGeohashStart));
-    mDeleteGeohash->bind(Parameters::GeohashEnd, static_cast<long long>(aGeohashEnd));
+    mDeleteGeohash->bind(Parameters::GeohashStart, static_cast<int64_t>(aGeohashStart));
+    mDeleteGeohash->bind(Parameters::GeohashEnd, static_cast<int64_t>(aGeohashEnd));
 
     mDeleteGeohash->exec();
     success = mDeleteGeohash->isDone();
@@ -146,7 +146,7 @@ bool ReviewPhotoQuery::DeleteMarker(const ACDB_marker_idx_type aMarkerId) {
   bool success = false;
 
   try {
-    mDeleteMarker->bind(Parameters::MarkerId, static_cast<long long>(aMarkerId));
+    mDeleteMarker->bind(Parameters::MarkerId, static_cast<int64_t>(aMarkerId));
 
     mDeleteMarker->exec();
     success = mDeleteMarker->isDone();
@@ -177,7 +177,7 @@ bool ReviewPhotoQuery::Get(const ACDB_review_idx_type aId,
   bool success = false;
 
   try {
-    mRead->bind(Parameters::Id, static_cast<long long>(aId));
+    mRead->bind(Parameters::Id, static_cast<int64_t>(aId));
 
     while (mRead->executeStep()) {
       ReviewPhotoTableDataType result;
@@ -218,7 +218,7 @@ bool ReviewPhotoQuery::GetListByMarkerId(
   bool success = false;
 
   try {
-    mReadList->bind(Parameters::MarkerId, static_cast<long long>(aMarkerId));
+    mReadList->bind(Parameters::MarkerId, static_cast<int64_t>(aMarkerId));
     mReadList->bind(Parameters::Captain, aCaptain);
     mReadList->bind(Parameters::Limit, aPageSize);
     mReadList->bind(Parameters::Offset, (aPageNumber - 1) * aPageSize);
@@ -267,7 +267,7 @@ bool ReviewPhotoQuery::Write(const ACDB_review_idx_type aId,
   bool success = false;
 
   try {
-    mWrite->bind(Parameters::Id, static_cast<long long>(aId));
+    mWrite->bind(Parameters::Id, static_cast<int64_t>(aId));
     mWrite->bind(Parameters::Ordinal, aReviewPhotoTableData.mOrdinal);
     mWrite->bind(Parameters::DownloadUrl, aReviewPhotoTableData.mDownloadUrl);
 

@@ -95,7 +95,7 @@ bool MarkerQuery::Delete(const ACDB_marker_idx_type aId) {
   bool success = false;
 
   try {
-    mDelete->bind(Parameters::Id, static_cast<long long>(aId));
+    mDelete->bind(Parameters::Id, static_cast<int64_t>(aId));
 
     mDelete->exec();
     success = mDelete->isDone();
@@ -125,8 +125,8 @@ bool MarkerQuery::Delete(const uint64_t aGeohashStart, const uint64_t aGeohashEn
   bool success = false;
 
   try {
-    mDeleteGeohash->bind(Parameters::GeohashStart, static_cast<long long>(aGeohashStart));
-    mDeleteGeohash->bind(Parameters::GeohashEnd, static_cast<long long>(aGeohashEnd));
+    mDeleteGeohash->bind(Parameters::GeohashStart, static_cast<int64_t>(aGeohashStart));
+    mDeleteGeohash->bind(Parameters::GeohashEnd, static_cast<int64_t>(aGeohashEnd));
 
     mDeleteGeohash->exec();
     success = mDeleteGeohash->isDone();
@@ -167,7 +167,7 @@ bool MarkerQuery::Get(const ACDB_marker_idx_type aId, MarkerTableDataType& aResu
   bool success = false;
 
   try {
-    mRead->bind(Parameters::Id, static_cast<long long>(aId));
+    mRead->bind(Parameters::Id, static_cast<int64_t>(aId));
 
     success = mRead->executeStep();
     if (success) {
@@ -335,12 +335,12 @@ bool MarkerQuery::Write(const ACDB_marker_idx_type aId, MarkerTableDataType&& aM
   bool success = false;
 
   try {
-    mWrite->bind(Parameters::Id, static_cast<long long>(aId));
+    mWrite->bind(Parameters::Id, static_cast<int64_t>(aId));
     mWrite->bind(Parameters::PoiType, aMarkerTableData.mType);
-    mWrite->bind(Parameters::LastUpdate, static_cast<long long>(aMarkerTableData.mLastUpdated));
+    mWrite->bind(Parameters::LastUpdate, static_cast<int64_t>(aMarkerTableData.mLastUpdated));
     mWrite->bind(Parameters::Name, aMarkerTableData.mName);
-    mWrite->bind(Parameters::SearchFilter, static_cast<long long>(aMarkerTableData.mSearchFilter));
-    mWrite->bind(Parameters::Geohash, static_cast<long long>(aMarkerTableData.mGeohash));
+    mWrite->bind(Parameters::SearchFilter, static_cast<int64_t>(aMarkerTableData.mSearchFilter));
+    mWrite->bind(Parameters::Geohash, static_cast<int64_t>(aMarkerTableData.mGeohash));
 
     success = mWrite->exec();
 

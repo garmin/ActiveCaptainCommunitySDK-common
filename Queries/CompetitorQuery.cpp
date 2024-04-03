@@ -98,7 +98,7 @@ bool CompetitorQuery::Delete(const ACDB_marker_idx_type aId) {
   bool success = false;
 
   try {
-    mDelete->bind(Parameters::Id, static_cast<long long>(aId));
+    mDelete->bind(Parameters::Id, static_cast<int64_t>(aId));
 
     mDelete->exec();
     success = mDelete->isDone();
@@ -128,8 +128,8 @@ bool CompetitorQuery::Delete(const uint64_t aGeohashStart, const uint64_t aGeoha
   bool success = false;
 
   try {
-    mDeleteGeohash->bind(Parameters::GeohashStart, static_cast<long long>(aGeohashStart));
-    mDeleteGeohash->bind(Parameters::GeohashEnd, static_cast<long long>(aGeohashEnd));
+    mDeleteGeohash->bind(Parameters::GeohashStart, static_cast<int64_t>(aGeohashStart));
+    mDeleteGeohash->bind(Parameters::GeohashEnd, static_cast<int64_t>(aGeohashEnd));
 
     mDeleteGeohash->exec();
     success = mDeleteGeohash->isDone();
@@ -161,8 +161,8 @@ bool CompetitorQuery::GetCanTarget(const ACDB_marker_idx_type aTargetId,
   bool success = false;
 
   try {
-    mReadAdTarget->bind(Parameters::TargetId, static_cast<long long>(aTargetId));
-    mReadAdTarget->bind(Parameters::AdvertiserId, static_cast<long long>(aAdvertiserId));
+    mReadAdTarget->bind(Parameters::TargetId, static_cast<int64_t>(aTargetId));
+    mReadAdTarget->bind(Parameters::AdvertiserId, static_cast<int64_t>(aAdvertiserId));
 
     success = mReadAdTarget->executeStep();
     if (success) {
@@ -196,7 +196,7 @@ bool CompetitorQuery::Get(const ACDB_marker_idx_type aId,
   bool success = false;
 
   try {
-    mRead->bind(Parameters::Id, static_cast<long long>(aId));
+    mRead->bind(Parameters::Id, static_cast<int64_t>(aId));
 
     while (mRead->executeStep()) {
       CompetitorTableDataType result;
@@ -237,7 +237,7 @@ bool CompetitorQuery::GetPotentialAdvertisers(const ACDB_marker_idx_type aId,
   bool success = false;
 
   try {
-    mReadAdvertisers->bind(Parameters::TargetId, static_cast<long long>(aId));
+    mReadAdvertisers->bind(Parameters::TargetId, static_cast<int64_t>(aId));
 
     while (mReadAdvertisers->executeStep()) {
       aResultOut.push_back(mReadAdvertisers->getColumn(Columns::AdvertiserId).getInt64());
@@ -271,9 +271,9 @@ bool CompetitorQuery::Write(const ACDB_marker_idx_type aId,
   bool success = false;
 
   try {
-    mWrite->bind(Parameters::PoiId, static_cast<long long>(aId));
+    mWrite->bind(Parameters::PoiId, static_cast<int64_t>(aId));
     mWrite->bind(Parameters::CompetitorPoiId,
-                 static_cast<long long>(aCompetitorTableData.mCompetitorId));
+                 static_cast<int64_t>(aCompetitorTableData.mCompetitorId));
     mWrite->bind(Parameters::Ordinal, aCompetitorTableData.mOrdinal);
 
     success = mWrite->exec();

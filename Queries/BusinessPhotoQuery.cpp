@@ -76,7 +76,7 @@ bool BusinessPhotoQuery::Delete(const ACDB_marker_idx_type aId) {
   bool success = false;
 
   try {
-    mDelete->bind(Parameters::Id, static_cast<long long>(aId));
+    mDelete->bind(Parameters::Id, static_cast<int64_t>(aId));
 
     mDelete->exec();
     success = mDelete->isDone();
@@ -106,8 +106,8 @@ bool BusinessPhotoQuery::Delete(const uint64_t aGeohashStart, const uint64_t aGe
   bool success = false;
 
   try {
-    mDeleteGeohash->bind(Parameters::GeohashStart, static_cast<long long>(aGeohashStart));
-    mDeleteGeohash->bind(Parameters::GeohashEnd, static_cast<long long>(aGeohashEnd));
+    mDeleteGeohash->bind(Parameters::GeohashStart, static_cast<int64_t>(aGeohashStart));
+    mDeleteGeohash->bind(Parameters::GeohashEnd, static_cast<int64_t>(aGeohashEnd));
 
     mDeleteGeohash->exec();
     success = mDeleteGeohash->isDone();
@@ -139,7 +139,7 @@ bool BusinessPhotoQuery::Get(const ACDB_marker_idx_type aId,
   bool success = false;
 
   try {
-    mRead->bind(Parameters::Id, static_cast<long long>(aId));
+    mRead->bind(Parameters::Id, static_cast<int64_t>(aId));
 
     while (mRead->executeStep()) {
       BusinessPhotoTableDataType result;
@@ -176,7 +176,7 @@ bool BusinessPhotoQuery::Write(const ACDB_marker_idx_type aId,
   bool success = false;
 
   try {
-    mWrite->bind(Parameters::Id, static_cast<long long>(aId));
+    mWrite->bind(Parameters::Id, static_cast<int64_t>(aId));
     mWrite->bind(Parameters::Ordinal, aBusinessPhotoTableData.mOrdinal);
     mWrite->bind(Parameters::DownloadUrl, aBusinessPhotoTableData.mDownloadUrl);
 
