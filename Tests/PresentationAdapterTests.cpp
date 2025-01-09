@@ -49,8 +49,6 @@ static PresentationMarkerPtr GetExpectedPresentationMarker(TF_state_type* aState
 //!
 //----------------------------------------------------------------
 static PresentationMarkerPtr GetExpectedPresentationMarker(TF_state_type* aState) {
-  TranslationUtil{aState};
-
   static const char* DEGREE_SYMBOL = "\xC2\xB0";
 
   MarkerDetail markerDetail{
@@ -332,7 +330,7 @@ static PresentationMarkerPtr GetExpectedPresentationMarker(TF_state_type* aState
 //!         Test retrieving business photo list.
 //!
 //----------------------------------------------------------------
-TF_TEST("acdb.presentationadapter.get_business_photo_list") {
+TF_TEST_AUTO_SLOW("acdb.presentationadapter.get_business_photo_list", 20) {
   // ----------------------------------------------------------
   // Arrange
   // ----------------------------------------------------------
@@ -376,7 +374,7 @@ TF_TEST("acdb.presentationadapter.get_business_photo_list") {
 //!         Test retrieving presentation marker.
 //!
 //----------------------------------------------------------------
-TF_TEST("acdb.presentationadapter.get_presentation_marker") {
+TF_TEST_AUTO_SLOW("acdb.presentationadapter.get_presentation_marker", 20) {
   // ----------------------------------------------------------
   // Arrange
   // ----------------------------------------------------------
@@ -445,7 +443,7 @@ TF_TEST("acdb.presentationadapter.get_presentation_marker") {
 //!         Test retrieving presentation marker (checking competitor ads).
 //!
 //----------------------------------------------------------------
-TF_TEST("acdb.presentationadapter.get_presentation_marker_competitor_ads") {
+TF_TEST_AUTO_SLOW("acdb.presentationadapter.get_presentation_marker_competitor_ads", 30) {
   // ----------------------------------------------------------
   // Arrange
   // ----------------------------------------------------------
@@ -513,7 +511,7 @@ TF_TEST("acdb.presentationadapter.get_presentation_marker_competitor_ads") {
 //!         Test retrieving presentation marker where user wrote featured review.
 //!
 //----------------------------------------------------------------
-TF_TEST("acdb.presentationadapter.get_presentation_marker_own_review") {
+TF_TEST_AUTO_SLOW("acdb.presentationadapter.get_presentation_marker_own_review", 30) {
   // ----------------------------------------------------------
   // Arrange
   // ----------------------------------------------------------
@@ -560,7 +558,7 @@ TF_TEST("acdb.presentationadapter.get_presentation_marker_own_review") {
 //!         Test retrieving invalid presentation marker.
 //!
 //----------------------------------------------------------------
-TF_TEST("acdb.presentationadapter.get_presentation_marker_invalid") {
+TF_TEST_AUTO_SLOW("acdb.presentationadapter.get_presentation_marker_invalid", 30) {
   // ----------------------------------------------------------
   // Arrange
   // ----------------------------------------------------------
@@ -593,7 +591,7 @@ TF_TEST("acdb.presentationadapter.get_presentation_marker_invalid") {
 //!         Test retrieving review list.
 //!
 //----------------------------------------------------------------
-TF_TEST("acdb.presentationadapter.get_review_list") {
+TF_TEST_AUTO_SLOW("acdb.presentationadapter.get_review_list", 20) {
   // ----------------------------------------------------------
   // Arrange
   // ----------------------------------------------------------

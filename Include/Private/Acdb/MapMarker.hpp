@@ -19,7 +19,7 @@ limitations under the License.
     @brief Contains functionality related to
     ActiveCaptain markers.
 
-    Copyright 2017-2020 by Garmin Ltd. or its subsidiaries.
+    Copyright 2017 by Garmin Ltd. or its subsidiaries.
 */
 
 #ifndef ACDB_MapMarker_hpp
@@ -42,19 +42,19 @@ class MapMarker : public IMapMarker {
             std::string&& aName, const int32_t aLat, const int32_t aLon,
             const MapIconType aMapIcon);
 
-  virtual ACDB_marker_idx_type GetId() const;
+  ACDB_marker_idx_type GetId() const override;
 
-  virtual uint64_t GetLastUpdated() const;
+  uint64_t GetLastUpdated() const override;
 
-  virtual MapIconType GetMapIcon() const;
+  MapIconType GetMapIcon() const override;
 
-  virtual std::string GetName() const;
+  std::string GetName() const override;
 
-  virtual scposn_type GetPosition() const;
+  scposn_type GetPosition() const override;
 
-  virtual ACDB_type_type GetType() const;
+  ACDB_type_type GetType() const override;
 
-  virtual std::string ToString() const;
+  std::string ToString() const override;
 
   virtual ~MapMarker() = default;
 

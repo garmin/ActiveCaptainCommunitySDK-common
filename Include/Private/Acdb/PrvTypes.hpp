@@ -209,7 +209,8 @@ enum class MessageId : uint32_t {
   ConnectionTypeOrDataUsageChanged,
   LanguageChanged,
   UnitsChanged,
-  SetBoundingBoxes
+  SetBoundingBoxes,
+  ErrorClear
 };
 
 union MessageData {

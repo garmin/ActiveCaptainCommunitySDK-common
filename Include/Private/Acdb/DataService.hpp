@@ -66,6 +66,9 @@ class DataService : public IDataService {
 
   ISearchMarkerPtr GetSearchMarker(const ACDB_marker_idx_type aIdx) const override;
 
+  void GetBasicSearchMarkersByFilter(const SearchMarkerFilter& aFilter,
+                                     std::vector<ISearchMarkerPtr>& aResults) const override;
+
   void GetSearchMarkersByFilter(const SearchMarkerFilter& aFilter,
                                 std::vector<ISearchMarkerPtr>& aResults) const override;
 

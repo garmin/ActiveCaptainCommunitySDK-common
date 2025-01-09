@@ -49,6 +49,7 @@ limitations under the License.
 #include "Acdb/Queries/TilesQuery.hpp"
 #include "Acdb/Queries/TranslatorQuery.hpp"
 #include "Acdb/Queries/VersionQuery.hpp"
+#include "Acdb/MapMarkerFilter.hpp"
 #include "Acdb/PrvTypes.hpp"
 #include "Acdb/Tests/DatabaseUtil.hpp"
 #include "Acdb/TextHandle.hpp"
@@ -525,7 +526,7 @@ TF_TEST("acdb.database_language") {
 //!         Test marker and position operations.
 //!
 //----------------------------------------------------------------
-TF_TEST("acdb.database_marker") {
+TF_TEST_AUTO_SLOW("acdb.database_marker", 15) {
   // ----------------------------------------------------------
   // Arrange
   // ----------------------------------------------------------
@@ -574,18 +575,12 @@ TF_TEST("acdb.database_marker") {
   // 0 and 4 are outside of bbox, 5 is inside bbox but wrong type.
   std::vector<MarkerTableDataType> actualFiltered;
 
-  ACDB_marker_filter_type filter;
-  filter.bbox = {
+  bbox_type bbox = {
       {static_cast<int32_t>(35.0 * UTL_DEG_TO_SEMI), static_cast<int32_t>(35.0 * UTL_DEG_TO_SEMI)},
       {static_cast<int32_t>(15.0 * UTL_DEG_TO_SEMI), static_cast<int32_t>(15.0 * UTL_DEG_TO_SEMI)}};
-  filter.include_marinas = true;
-  filter.include_hazards = false;
-  filter.include_anchorages = false;
-  filter.include_local_knowledge = false;
-  filter.search_string = nullptr;
-  filter.max_num_results = 5;
+  uint32_t typesBitmask = ACDB_MARINA;
 
-  MapMarkerFilter markerFilter(&filter);
+  MapMarkerFilter markerFilter(bbox, typesBitmask);
 
   uint64_t expectedLastUpdate = markerTableDataList[4].mLastUpdated;
   uint64_t actualLastUpdate;
@@ -1110,7 +1105,7 @@ TF_TEST("acdb.database_tile_last_update") {
 //!         Test tile last update operations.
 //!
 //----------------------------------------------------------------
-TF_TEST("acdb.database_tile_last_update_bbox") {
+TF_TEST_AUTO_SLOW("acdb.database_tile_last_update_bbox", 15) {
   // ----------------------------------------------------------
   // Arrange
   // ----------------------------------------------------------
@@ -1168,7 +1163,7 @@ TF_TEST("acdb.database_tile_last_update_bbox") {
 //!         Test tiles operations.
 //!
 //----------------------------------------------------------------
-TF_TEST("acdb.database_tiles") {
+TF_TEST_AUTO_SLOW("acdb.database_tiles", 30) {
   // ----------------------------------------------------------
   // Arrange
   // ----------------------------------------------------------
@@ -1201,7 +1196,7 @@ TF_TEST("acdb.database_tiles") {
 //!         Test tiles bbox operations.
 //!
 //----------------------------------------------------------------
-TF_TEST("acdb.database_tiles_bbox") {
+TF_TEST_AUTO_SLOW("acdb.database_tiles_bbox", 30) {
   // ----------------------------------------------------------
   // Arrange
   // ----------------------------------------------------------

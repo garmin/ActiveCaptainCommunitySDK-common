@@ -42,6 +42,19 @@ namespace Acdb {
 SearchMarker::SearchMarker(const ACDB_marker_idx_type aId, const ACDB_type_type aType,
                            const uint64_t aLastUpdated, std::string&& aName, const int32_t aLat,
                            const int32_t aLon, const MapIconType aMapIcon,
+                           std::string&& aLocalizedType)
+    : mBaseMarker(aId, aType, aLastUpdated, std::move(aName), aLat, aLon, aMapIcon),
+      mLocalizedType(std::move(aLocalizedType)) {}  // end of SearchMarker::SearchMarker
+
+//----------------------------------------------------------------
+//!
+//!   @public
+//!   @brief Constructor
+//!
+//----------------------------------------------------------------
+SearchMarker::SearchMarker(const ACDB_marker_idx_type aId, const ACDB_type_type aType,
+                           const uint64_t aLastUpdated, std::string&& aName, const int32_t aLat,
+                           const int32_t aLon, const MapIconType aMapIcon,
                            ContactData&& aContactData, FuelData&& aFuelData,
                            ReviewStatsData&& aReviewStatsData, std::string&& aLocalizedType)
     : mBaseMarker(aId, aType, aLastUpdated, std::move(aName), aLat, aLon, aMapIcon),

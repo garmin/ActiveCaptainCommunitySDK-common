@@ -35,6 +35,8 @@ TextHandle GetMarkerTypeTextHandle(ACDB_type_type aMarkerType);
 
 MapMarkerPtr GetMapMarker(MarkerTableDataType& aMarkerData);
 
+SearchMarkerPtr GetSearchMarker(MarkerTableDataType& aMarkerData);
+
 SearchMarkerPtr GetSearchMarker(ExtendedMarkerDataType& aMarkerData);
 
 TextHandle GetYesNoUnknownNearbyTextHandle(const std::string& aYnubValue);

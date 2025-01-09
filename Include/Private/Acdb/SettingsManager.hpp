@@ -18,7 +18,7 @@ limitations under the License.
     @file
     SettingsManager definition for ActiveCaptain.
 
-    Copyright 2017-2020 by Garmin Ltd. or its subsidiaries.
+    Copyright 2017 by Garmin Ltd. or its subsidiaries.
 */
 
 #ifndef ACDB_SettingsManager_hpp
@@ -45,30 +45,30 @@ class SettingsManager : public ISettingsManager {
 
   static SettingsManager& GetInstance();
 
-  ACDB_coord_format_type GetCoordinateFormat() const;
+  ACDB_coord_format_type GetCoordinateFormat() const override;
 
-  ACDB_date_format_type GetDateFormat() const;
+  ACDB_date_format_type GetDateFormat() const override;
 
-  ACDB_unit_type GetDistanceUnit() const;
+  ACDB_unit_type GetDistanceUnit() const override;
 
-  ACDB_unit_type GetVolumeUnit() const;
+  ACDB_unit_type GetVolumeUnit() const override;
 
-  void SetCoordinateFormat(const ACDB_coord_format_type aCoordFormat);
+  void SetCoordinateFormat(const ACDB_coord_format_type aCoordFormat) override;
 
-  void SetDateFormat(const ACDB_date_format_type aDateFormat);
+  void SetDateFormat(const ACDB_date_format_type aDateFormat) override;
 
-  void SetDistanceUnit(const ACDB_unit_type aDistanceUnit);
+  void SetDistanceUnit(const ACDB_unit_type aDistanceUnit) override;
 
-  void SetVolumeUnit(const ACDB_unit_type aVolumeUnit);
+  void SetVolumeUnit(const ACDB_unit_type aVolumeUnit) override;
 
 #if (acdb_CLOUD_CLIENT_SUPPORT)
-  boolean GetAutomaticDownload() const;
+  boolean GetAutomaticDownload() const override;
 
-  DLM_data_usage_t32 GetDataUsage() const;
+  DLM_data_usage_t32 GetDataUsage() const override;
 
   void SetAutomaticDownload(const boolean aAutoDownloadEnable);
 
-  void SetDataUsage(const DLM_data_usage_t32 aDataUsage);
+  void SetDataUsage(const DLM_data_usage_t32 aDataUsage) override;
 
   static const std::string AutoDownloadSettingIdStr;
   static const std::string DataUsageSettingIdStr;

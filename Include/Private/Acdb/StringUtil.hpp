@@ -24,6 +24,7 @@ limitations under the License.
 #ifndef ACDB_StringUtil_hpp
 #define ACDB_StringUtil_hpp
 
+#include <cstdint>
 #include <string>
 #include <vector>
 

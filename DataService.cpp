@@ -206,6 +206,20 @@ ISearchMarkerPtr DataService::GetSearchMarker(const ACDB_marker_idx_type aIdx) c
 //!
 //!   @public
 //!   @detail
+//!       Wraps the GetBasicSearchMarkersByFilter call from the Repository member
+//!       object to provide a public access point for the single
+//!       system repository object.
+//!
+//----------------------------------------------------------------
+void DataService::GetBasicSearchMarkersByFilter(const SearchMarkerFilter& aFilter,
+                                                std::vector<ISearchMarkerPtr>& aResults) const {
+  mRepositoryPtr->GetBasicSearchMarkersByFilter(aFilter, aResults);
+}  // end of GetBasicSearchMarkersByFilter
+
+//----------------------------------------------------------------
+//!
+//!   @public
+//!   @detail
 //!       Wraps the GetSearchMarkersByFilter call from the Repository member
 //!       object to provide a public access point for the single
 //!       system repository object.

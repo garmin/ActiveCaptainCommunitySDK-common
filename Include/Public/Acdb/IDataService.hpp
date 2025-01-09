@@ -60,6 +60,9 @@ class IDataService {
 
   virtual ISearchMarkerPtr GetSearchMarker(const ACDB_marker_idx_type aIdx) const = 0;
 
+  virtual void GetBasicSearchMarkersByFilter(const SearchMarkerFilter& aFilter,
+                                             std::vector<ISearchMarkerPtr>& aResults) const = 0;
+
   virtual void GetSearchMarkersByFilter(const SearchMarkerFilter& aFilter,
                                         std::vector<ISearchMarkerPtr>& aResults) const = 0;
 

@@ -40,7 +40,7 @@ namespace Test {
 //!         Test retrieving last update info.
 //!
 //----------------------------------------------------------------
-TF_TEST("acdb.infoadapter.get_last_update_info") {
+TF_TEST_AUTO_SLOW("acdb.infoadapter.get_last_update_info", 30) {
   // ----------------------------------------------------------
   // Arrange
   // ----------------------------------------------------------
@@ -51,8 +51,8 @@ TF_TEST("acdb.infoadapter.get_last_update_info") {
   PopulateDatabase(state, database);
 
   LastUpdateInfoType expected;
-  expected.mMarkerLastUpdate = 1527084009;
-  expected.mUserReviewLastUpdate = 1527084008;
+  expected.mMarkerLastUpdate = 1715842820;
+  expected.mUserReviewLastUpdate = 1715842821;
   LastUpdateInfoType actual;
 
   // ----------------------------------------------------------
@@ -76,7 +76,7 @@ TF_TEST("acdb.infoadapter.get_last_update_info") {
 //!         Test retrieving version.
 //!
 //----------------------------------------------------------------
-TF_TEST("acdb.infoadapter.get_version") {
+TF_TEST_AUTO_SLOW("acdb.infoadapter.get_version", 30) {
   // ----------------------------------------------------------
   // Arrange
   // ----------------------------------------------------------

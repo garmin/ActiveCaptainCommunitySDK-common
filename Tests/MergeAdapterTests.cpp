@@ -39,7 +39,7 @@ namespace Test {
 //!         Test retrieving marker collection.
 //!
 //----------------------------------------------------------------
-TF_TEST("acdb.mergeadapter.get_marker") {
+TF_TEST_AUTO_SLOW("acdb.mergeadapter.get_marker", 30) {
   // ----------------------------------------------------------
   // Arrange
   // ----------------------------------------------------------
@@ -71,7 +71,7 @@ TF_TEST("acdb.mergeadapter.get_marker") {
 //!         Test retrieving reviews.
 //!
 //----------------------------------------------------------------
-TF_TEST("acdb.mergeadapter.get_reviews") {
+TF_TEST_AUTO_SLOW("acdb.mergeadapter.get_reviews", 30) {
   // ----------------------------------------------------------
   // Arrange
   // ----------------------------------------------------------

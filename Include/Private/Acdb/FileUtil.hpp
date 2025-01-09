@@ -24,6 +24,7 @@ limitations under the License.
 #ifndef ACB_FileUtil_hpp
 #define ACB_FileUtil_hpp
 
+#include <cstdint>
 #include <string>
 #include <vector>
 

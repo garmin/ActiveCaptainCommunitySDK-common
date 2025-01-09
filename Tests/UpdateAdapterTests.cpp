@@ -50,7 +50,7 @@ namespace Test {
 //!         Test deleting markers.
 //!
 //----------------------------------------------------------------
-TF_TEST("acdb.updateadapter.delete_markers") {
+TF_TEST_AUTO_SLOW("acdb.updateadapter.delete_markers", 30) {
   // ----------------------------------------------------------
   // Arrange
   // ----------------------------------------------------------
@@ -96,7 +96,7 @@ TF_TEST("acdb.updateadapter.delete_markers") {
 //!         Test deleting reviews.
 //!
 //----------------------------------------------------------------
-TF_TEST("acdb.updateadapter.delete_reviews") {
+TF_TEST_AUTO_SLOW("acdb.updateadapter.delete_reviews", 30) {
   // ----------------------------------------------------------
   // Arrange
   // ----------------------------------------------------------
@@ -169,7 +169,7 @@ TF_TEST("acdb.updateadapter.delete_reviews") {
 //!         Test deleting tile.
 //!
 //----------------------------------------------------------------
-TF_TEST("acdb.updateadapter.delete_tile") {
+TF_TEST_AUTO_SLOW("acdb.updateadapter.delete_tile", 30) {
   // ----------------------------------------------------------
   // Arrange
   // ----------------------------------------------------------
@@ -224,7 +224,7 @@ TF_TEST("acdb.updateadapter.delete_tile") {
 //!         Test deleting tile reviews.
 //!
 //----------------------------------------------------------------
-TF_TEST("acdb.updateadapter.delete_tile_reviews") {
+TF_TEST_AUTO_SLOW("acdb.updateadapter.delete_tile_reviews", 40) {
   // ----------------------------------------------------------
   // Arrange
   // ----------------------------------------------------------
@@ -292,7 +292,7 @@ TF_TEST("acdb.updateadapter.delete_tile_reviews") {
 //!         Test updating markers.
 //!
 //----------------------------------------------------------------
-TF_TEST("acdb.updateadapter.update_markers") {
+TF_TEST_AUTO_SLOW("acdb.updateadapter.update_markers", 20) {
   // ----------------------------------------------------------
   // Arrange
   // ----------------------------------------------------------
@@ -374,7 +374,7 @@ TF_TEST("acdb.updateadapter.update_markers") {
 //!         Test updating reviews.
 //!
 //----------------------------------------------------------------
-TF_TEST("acdb.updateadapter.update_reviews") {
+TF_TEST_AUTO_SLOW("acdb.updateadapter.update_reviews", 30) {
   // ----------------------------------------------------------
   // Arrange
   // ----------------------------------------------------------

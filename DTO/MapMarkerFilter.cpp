@@ -36,30 +36,8 @@ namespace Acdb {
 //!   @brief Constructor
 //!
 //----------------------------------------------------------------
-MapMarkerFilter::MapMarkerFilter(ACDB_marker_filter_type const* aFilter)
-    : mBbox(aFilter->bbox), mTypesBitmask(0) {
-  if (aFilter->include_marinas) {
-    mTypesBitmask |= ACDB_MARINA;
-  }
-
-  if (aFilter->include_hazards) {
-    mTypesBitmask |= ACDB_HAZARD;
-  }
-
-  if (aFilter->include_anchorages) {
-    mTypesBitmask |= ACDB_ANCHORAGE;
-  }
-
-  if (aFilter->include_local_knowledge) {
-    mTypesBitmask |= ACDB_BOAT_RAMP;
-    mTypesBitmask |= ACDB_BUSINESS;
-    mTypesBitmask |= ACDB_INLET;
-    mTypesBitmask |= ACDB_BRIDGE;
-    mTypesBitmask |= ACDB_LOCK;
-    mTypesBitmask |= ACDB_DAM;
-    mTypesBitmask |= ACDB_FERRY;
-  }
-}
+MapMarkerFilter::MapMarkerFilter(const bbox_type& aBbox, uint32_t aTypesBitmask)
+    : mBbox(aBbox), mTypesBitmask(aTypesBitmask) {}
 
 //----------------------------------------------------------------
 //!

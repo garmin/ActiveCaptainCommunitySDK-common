@@ -57,6 +57,9 @@ class SearchMarkerFilter {
 
   explicit SearchMarkerFilter();
 
+  SearchMarkerFilter(const bbox_type& aBbox, uint32_t aTypesBitmask,
+                     const std::string& aSearchString, int32_t aMaxResults = -1);
+
   const bbox_type& GetBbox() const;
 
   uint32_t GetAllowedTypes() const;

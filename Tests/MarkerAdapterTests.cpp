@@ -28,6 +28,7 @@ limitations under the License.
 
 #include "Acdb/MarkerAdapter.hpp"
 #include "Acdb/MapMarker.hpp"
+#include "Acdb/MapMarkerFilter.hpp"
 #include "Acdb/SearchMarker.hpp"
 #include "Acdb/TableDataTypes.hpp"
 #include "Acdb/Tests/DatabaseUtil.hpp"
@@ -46,7 +47,7 @@ namespace Test {
 //!         Test retrieving marker.
 //!
 //----------------------------------------------------------------
-TF_TEST("acdb.markeradapter.get_marker") {
+TF_TEST_AUTO_SLOW("acdb.markeradapter.get_marker", 30) {
   // ----------------------------------------------------------
   // Arrange
   // ----------------------------------------------------------
@@ -87,7 +88,7 @@ TF_TEST("acdb.markeradapter.get_marker") {
 //!         Test retrieving invalid marker.
 //!
 //----------------------------------------------------------------
-TF_TEST("acdb.markeradapter.get_marker_invalid") {
+TF_TEST_AUTO_SLOW("acdb.markeradapter.get_marker_invalid", 20) {
   // ----------------------------------------------------------
   // Arrange
   // ----------------------------------------------------------
@@ -117,7 +118,7 @@ TF_TEST("acdb.markeradapter.get_marker_invalid") {
 //!         Test retrieving average stars.
 //!
 //----------------------------------------------------------------
-TF_TEST("acdb.markeradapter.get_marker_avg_stars") {
+TF_TEST_AUTO_SLOW("acdb.markeradapter.get_marker_avg_stars", 20) {
   // ----------------------------------------------------------
   // Arrange
   // ----------------------------------------------------------
@@ -148,7 +149,7 @@ TF_TEST("acdb.markeradapter.get_marker_avg_stars") {
 //!         Test retrieving average stars for an invalid marker.
 //!
 //----------------------------------------------------------------
-TF_TEST("acdb.markeradapter.get_marker_avg_stars_invalid_marker") {
+TF_TEST_AUTO_SLOW("acdb.markeradapter.get_marker_avg_stars_invalid_marker", 20) {
   // ----------------------------------------------------------
   // Arrange
   // ----------------------------------------------------------
@@ -176,10 +177,10 @@ TF_TEST("acdb.markeradapter.get_marker_avg_stars_invalid_marker") {
 //!
 //!   @public
 //!   @detail
-//!         Test retrieving nearest markers.
+//!         Test retrieving nearest Marina markers within the given bbox.
 //!
 //----------------------------------------------------------------
-TF_TEST("acdb.markeradapter.get_marker_nearest") {
+TF_TEST_AUTO_SLOW("acdb.markeradapter.get_marina_marker_nearest", 30) {
   // ----------------------------------------------------------
   // Arrange
   // ----------------------------------------------------------
@@ -189,17 +190,10 @@ TF_TEST("acdb.markeradapter.get_marker_nearest") {
 
   MarkerAdapter markerAdapter{database};
 
-  ACDB_marker_filter_type filter;
-  filter.bbox.nec = {350, 350};
-  filter.bbox.swc = {150, 150};
-  filter.include_marinas = true;
-  filter.include_hazards = false;
-  filter.include_anchorages = false;
-  filter.include_local_knowledge = false;
-  filter.search_string = nullptr;
-  filter.max_num_results = 10;
+  bbox_type bbox = {{350, 350}, {150, 150}};
+  uint32_t typesBitmask = ACDB_MARINA;
 
-  MapMarkerFilter markerFilter(&filter);
+  MapMarkerFilter markerFilter(bbox, typesBitmask);
 
   // Expected:
   // - 1 and 4 are outside bbox
@@ -228,10 +222,658 @@ TF_TEST("acdb.markeradapter.get_marker_nearest") {
 //!
 //!   @public
 //!   @detail
+//!         Test retrieving nearest Hazard markers within the given bbox.
+//!
+//----------------------------------------------------------------
+TF_TEST_AUTO_SLOW("acdb.markeradapter.get_hazard_marker_nearest", 20) {
+  // ----------------------------------------------------------
+  // Arrange
+  // ----------------------------------------------------------
+  auto database = CreateDatabase(state);
+
+  PopulateDatabase(state, database);
+
+  MarkerAdapter markerAdapter{database};
+
+  bbox_type bbox = {{350, 350}, {150, 150}};
+  uint32_t typesBitmask = ACDB_HAZARD;
+
+  MapMarkerFilter filter(bbox, typesBitmask);
+
+  // Expected:
+  // - 23 is outside bbox
+  // - 11 should be good
+  // - all others are of wrong type
+  const std::vector<ACDB_marker_idx_type> expected = {11};
+  std::vector<IMapMarkerPtr> actual;
+
+  // ----------------------------------------------------------
+  // Act
+  // ----------------------------------------------------------
+  markerAdapter.GetMapMarkersByFilter(filter, actual);
+
+  // ----------------------------------------------------------
+  // Assert
+  // ----------------------------------------------------------
+  TF_assert_msg(state, expected.size() == actual.size(),
+                "Nearest markers count: expected %u, actual %u", expected.size(), actual.size());
+
+  for (const auto& marker : actual) {
+    TF_assert_msg(state, find(expected.begin(), expected.end(), marker->GetId()) != expected.end(),
+                  "Nearest markers: Unexpected result %d", marker->GetId());
+  }
+}
+
+//----------------------------------------------------------------
+//!
+//!   @public
+//!   @detail
+//!         Test retrieving nearest Anchorage markers within the given bbox.
+//!
+//----------------------------------------------------------------
+TF_TEST_AUTO_SLOW("acdb.markeradapter.get_anchorage_marker_nearest", 20) {
+  // ----------------------------------------------------------
+  // Arrange
+  // ----------------------------------------------------------
+  auto database = CreateDatabase(state);
+
+  PopulateDatabase(state, database);
+
+  MarkerAdapter markerAdapter{database};
+
+  bbox_type bbox = {{350, 350}, {150, 150}};
+  uint32_t typesBitmask = ACDB_ANCHORAGE;
+
+  MapMarkerFilter filter(bbox, typesBitmask);
+
+  // Expected:
+  // - 13 is outside bbox
+  // - 12 should be good
+  // - all others are of wrong type
+  const std::vector<ACDB_marker_idx_type> expected = {12};
+  std::vector<IMapMarkerPtr> actual;
+
+  // ----------------------------------------------------------
+  // Act
+  // ----------------------------------------------------------
+  markerAdapter.GetMapMarkersByFilter(filter, actual);
+
+  // ----------------------------------------------------------
+  // Assert
+  // ----------------------------------------------------------
+  TF_assert_msg(state, expected.size() == actual.size(),
+                "Nearest markers count: expected %u, actual %u", expected.size(), actual.size());
+
+  for (const auto& marker : actual) {
+    TF_assert_msg(state, find(expected.begin(), expected.end(), marker->GetId()) != expected.end(),
+                  "Nearest markers: Unexpected result %d", marker->GetId());
+  }
+}
+
+//----------------------------------------------------------------
+//!
+//!   @public
+//!   @detail
+//!         Test retrieving nearest Local Knowledge markers within the given bbox.
+//!
+//----------------------------------------------------------------
+TF_TEST_AUTO_SLOW("acdb.markeradapter.get_all_local_knowledge_markers_nearest", 20) {
+  // ----------------------------------------------------------
+  // Arrange
+  // ----------------------------------------------------------
+  auto database = CreateDatabase(state);
+
+  PopulateDatabase(state, database);
+
+  MarkerAdapter markerAdapter{database};
+
+  bbox_type bbox = {{350, 350}, {150, 150}};
+  uint32_t typesBitmask = ACDB_ALL_LOCAL_KNOWLEDGE;
+
+  MapMarkerFilter filter(bbox, typesBitmask);
+
+  // Expected:
+  // - 24, ..., 30 are outside the bbox
+  // - 14, ..., 20 should be good
+  // - all others are of wrong type
+  const std::vector<ACDB_marker_idx_type> expected = {14, 15, 16, 17, 18, 19, 20};
+  std::vector<IMapMarkerPtr> actual;
+
+  // ----------------------------------------------------------
+  // Act
+  // ----------------------------------------------------------
+  markerAdapter.GetMapMarkersByFilter(filter, actual);
+
+  // ----------------------------------------------------------
+  // Assert
+  // ----------------------------------------------------------
+  TF_assert_msg(state, expected.size() == actual.size(),
+                "Nearest markers count: expected %u, actual %u", expected.size(), actual.size());
+
+  for (const auto& marker : actual) {
+    TF_assert_msg(state, find(expected.begin(), expected.end(), marker->GetId()) != expected.end(),
+                  "Nearest markers: Unexpected result %d", marker->GetId());
+  }
+}
+
+//----------------------------------------------------------------
+//!
+//!   @public
+//!   @detail
+//!         Test retrieving nearest all markers within the given bbox.
+//!
+//----------------------------------------------------------------
+TF_TEST_AUTO_SLOW("acdb.markeradapter.get_all_markers_nearest", 20) {
+  // ----------------------------------------------------------
+  // Arrange
+  // ----------------------------------------------------------
+  auto database = CreateDatabase(state);
+
+  PopulateDatabase(state, database);
+
+  MarkerAdapter markerAdapter{database};
+
+  bbox_type bbox = {{350, 350}, {150, 150}};
+  uint32_t typesBitmask = ACDB_ALL_TYPES;
+
+  MapMarkerFilter filter(bbox, typesBitmask);
+
+  // Expected:
+  // - 1, 4, 5, 6, 7, 8, 9, 10, 13, 23, ..., 30 are outside the bbox
+  // - 2, 3, 11, 12, 14, ..., 22 should be good
+  const std::vector<ACDB_marker_idx_type> expected = {2,  3,  11, 12, 14, 15, 16,
+                                                      17, 18, 19, 20, 21, 22};
+  std::vector<IMapMarkerPtr> actual;
+
+  // ----------------------------------------------------------
+  // Act
+  // ----------------------------------------------------------
+  markerAdapter.GetMapMarkersByFilter(filter, actual);
+
+  // ----------------------------------------------------------
+  // Assert
+  // ----------------------------------------------------------
+  TF_assert_msg(state, expected.size() == actual.size(),
+                "Nearest markers count: expected %u, actual %u", expected.size(), actual.size());
+
+  for (const auto& marker : actual) {
+    TF_assert_msg(state, find(expected.begin(), expected.end(), marker->GetId()) != expected.end(),
+                  "Nearest markers: Unexpected result %d", marker->GetId());
+  }
+}
+
+//----------------------------------------------------------------
+//!
+//!   @public
+//!   @detail
+//!         Test retrieving Boat Ramp markers within the given bbox.
+//!
+//----------------------------------------------------------------
+TF_TEST_AUTO_SLOW("acdb.markeradapter.get_boat_ramp_markers_nearest", 20) {
+  // ----------------------------------------------------------
+  // Arrange
+  // ----------------------------------------------------------
+  auto database = CreateDatabase(state);
+
+  PopulateDatabase(state, database);
+
+  MarkerAdapter markerAdapter{database};
+
+  bbox_type bbox = {{750, 750}, {150, 150}};
+  uint32_t typesBitmask = ACDB_BOAT_RAMP;
+
+  MapMarkerFilter filter(bbox, typesBitmask);
+
+  // Expected:
+  // - 14, 24 should be good
+  // - all others are of wrong types
+  const std::vector<ACDB_marker_idx_type> expected = {14, 24};
+  std::vector<IMapMarkerPtr> actual;
+
+  // ----------------------------------------------------------
+  // Act
+  // ----------------------------------------------------------
+  markerAdapter.GetMapMarkersByFilter(filter, actual);
+
+  // ----------------------------------------------------------
+  // Assert
+  // ----------------------------------------------------------
+  TF_assert_msg(state, expected.size() == actual.size(),
+                "Nearest markers count: expected %u, actual %u", expected.size(), actual.size());
+
+  for (const auto& marker : actual) {
+    TF_assert_msg(state, find(expected.begin(), expected.end(), marker->GetId()) != expected.end(),
+                  "Nearest markers: Unexpected result %d", marker->GetId());
+  }
+}
+
+//----------------------------------------------------------------
+//!
+//!   @public
+//!   @detail
+//!         Test retrieving Boat Ramp, Business markers within the given bbox.
+//!
+//----------------------------------------------------------------
+TF_TEST_AUTO_SLOW("acdb.markeradapter.get_boat_ramp_business_markers_nearest", 20) {
+  // ----------------------------------------------------------
+  // Arrange
+  // ----------------------------------------------------------
+  auto database = CreateDatabase(state);
+
+  PopulateDatabase(state, database);
+
+  MarkerAdapter markerAdapter{database};
+
+  bbox_type bbox = {{750, 750}, {150, 150}};
+  uint32_t typesBitmask = ACDB_BOAT_RAMP | ACDB_BUSINESS;
+
+  MapMarkerFilter filter(bbox, typesBitmask);
+
+  // Expected:
+  // - 14, 15, 24, 25 should be good
+  // - all others are of wrong types
+  const std::vector<ACDB_marker_idx_type> expected = {14, 15, 24, 25};
+  std::vector<IMapMarkerPtr> actual;
+
+  // ----------------------------------------------------------
+  // Act
+  // ----------------------------------------------------------
+  markerAdapter.GetMapMarkersByFilter(filter, actual);
+
+  // ----------------------------------------------------------
+  // Assert
+  // ----------------------------------------------------------
+  TF_assert_msg(state, expected.size() == actual.size(),
+                "Nearest markers count: expected %u, actual %u", expected.size(), actual.size());
+
+  for (const auto& marker : actual) {
+    TF_assert_msg(state, find(expected.begin(), expected.end(), marker->GetId()) != expected.end(),
+                  "Nearest markers: Unexpected result %d", marker->GetId());
+  }
+}
+
+//----------------------------------------------------------------
+//!
+//!   @public
+//!   @detail
+//!         Test retrieving Boat Ramp, Business, Inlet markers within the given bbox.
+//!
+//----------------------------------------------------------------
+TF_TEST_AUTO_SLOW("acdb.markeradapter.get_boat_ramp_business_inlet_markers_nearest", 20) {
+  // ----------------------------------------------------------
+  // Arrange
+  // ----------------------------------------------------------
+  auto database = CreateDatabase(state);
+
+  PopulateDatabase(state, database);
+
+  MarkerAdapter markerAdapter{database};
+
+  bbox_type bbox = {{750, 750}, {150, 150}};
+  uint32_t typesBitmask = ACDB_BOAT_RAMP | ACDB_BUSINESS | ACDB_INLET;
+
+  MapMarkerFilter filter(bbox, typesBitmask);
+
+  // Expected:
+  // - 14, 15, 16, 24, 25, 26 should be good
+  // - all others are of wrong types
+  const std::vector<ACDB_marker_idx_type> expected = {14, 15, 16, 24, 25, 26};
+  std::vector<IMapMarkerPtr> actual;
+
+  // ----------------------------------------------------------
+  // Act
+  // ----------------------------------------------------------
+  markerAdapter.GetMapMarkersByFilter(filter, actual);
+
+  // ----------------------------------------------------------
+  // Assert
+  // ----------------------------------------------------------
+  TF_assert_msg(state, expected.size() == actual.size(),
+                "Nearest markers count: expected %u, actual %u", expected.size(), actual.size());
+
+  for (const auto& marker : actual) {
+    TF_assert_msg(state, find(expected.begin(), expected.end(), marker->GetId()) != expected.end(),
+                  "Nearest markers: Unexpected result %d", marker->GetId());
+  }
+}
+
+//----------------------------------------------------------------
+//!
+//!   @public
+//!   @detail
+//!         Test retrieving Boat Ramp, Business, Inlet, Bridge markers within the given bbox.
+//!
+//----------------------------------------------------------------
+TF_TEST_AUTO_SLOW("acdb.markeradapter.get_boat_ramp_business_inlet_bridge_markers_nearest", 20) {
+  // ----------------------------------------------------------
+  // Arrange
+  // ----------------------------------------------------------
+  auto database = CreateDatabase(state);
+
+  PopulateDatabase(state, database);
+
+  MarkerAdapter markerAdapter{database};
+
+  bbox_type bbox = {{750, 750}, {150, 150}};
+  uint32_t typesBitmask = ACDB_BOAT_RAMP | ACDB_BUSINESS | ACDB_INLET | ACDB_BRIDGE;
+
+  MapMarkerFilter filter(bbox, typesBitmask);
+
+  // Expected:
+  // - 14, 15, 16, 17, 24, 25, 26, 27 should be good
+  // - all others are of wrong types
+  const std::vector<ACDB_marker_idx_type> expected = {14, 15, 16, 17, 24, 25, 26, 27};
+  std::vector<IMapMarkerPtr> actual;
+
+  // ----------------------------------------------------------
+  // Act
+  // ----------------------------------------------------------
+  markerAdapter.GetMapMarkersByFilter(filter, actual);
+
+  // ----------------------------------------------------------
+  // Assert
+  // ----------------------------------------------------------
+  TF_assert_msg(state, expected.size() == actual.size(),
+                "Nearest markers count: expected %u, actual %u", expected.size(), actual.size());
+
+  for (const auto& marker : actual) {
+    TF_assert_msg(state, find(expected.begin(), expected.end(), marker->GetId()) != expected.end(),
+                  "Nearest markers: Unexpected result %d", marker->GetId());
+  }
+}
+
+//----------------------------------------------------------------
+//!
+//!   @public
+//!   @detail
+//!         Test retrieving Boat Ramp, Business, Inlet, Bridge, Lock markers within the given bbox.
+//!
+//----------------------------------------------------------------
+TF_TEST_AUTO_SLOW("acdb.markeradapter.get_boat_ramp_business_inlet_bridge_lock_markers_nearest",
+                  20) {
+  // ----------------------------------------------------------
+  // Arrange
+  // ----------------------------------------------------------
+  auto database = CreateDatabase(state);
+
+  PopulateDatabase(state, database);
+
+  MarkerAdapter markerAdapter{database};
+
+  bbox_type bbox = {{750, 750}, {150, 150}};
+  uint32_t typesBitmask = ACDB_BOAT_RAMP | ACDB_BUSINESS | ACDB_INLET | ACDB_BRIDGE | ACDB_LOCK;
+
+  MapMarkerFilter filter(bbox, typesBitmask);
+
+  // Expected:
+  // - 14, 15, 16, 17, 18, 24, 25, 26, 27, 28 should be good
+  // - all others are of wrong types
+  const std::vector<ACDB_marker_idx_type> expected = {14, 15, 16, 17, 18, 24, 25, 26, 27, 28};
+  std::vector<IMapMarkerPtr> actual;
+
+  // ----------------------------------------------------------
+  // Act
+  // ----------------------------------------------------------
+  markerAdapter.GetMapMarkersByFilter(filter, actual);
+
+  // ----------------------------------------------------------
+  // Assert
+  // ----------------------------------------------------------
+  TF_assert_msg(state, expected.size() == actual.size(),
+                "Nearest markers count: expected %u, actual %u", expected.size(), actual.size());
+
+  for (const auto& marker : actual) {
+    TF_assert_msg(state, find(expected.begin(), expected.end(), marker->GetId()) != expected.end(),
+                  "Nearest markers: Unexpected result %d", marker->GetId());
+  }
+}
+
+//----------------------------------------------------------------
+//!
+//!   @public
+//!   @detail
+//!         Test retrieving Boat Ramp, Business, Inlet, Bridge, Lock, Dam markers within the given
+//!         bbox.
+//!
+//----------------------------------------------------------------
+TF_TEST_AUTO_SLOW("acdb.markeradapter.get_boat_ramp_business_inlet_bridge_lock_dam_markers_nearest",
+                  20) {
+  // ----------------------------------------------------------
+  // Arrange
+  // ----------------------------------------------------------
+  auto database = CreateDatabase(state);
+
+  PopulateDatabase(state, database);
+
+  MarkerAdapter markerAdapter{database};
+
+  bbox_type bbox = {{750, 750}, {150, 150}};
+  uint32_t typesBitmask =
+      ACDB_BOAT_RAMP | ACDB_BUSINESS | ACDB_INLET | ACDB_BRIDGE | ACDB_LOCK | ACDB_DAM;
+
+  MapMarkerFilter filter(bbox, typesBitmask);
+
+  // Expected:
+  // - 14, 15, 16, 17, 18, 19, 24, 25, 26, 27, 28, 29 should be good
+  // - all others are of wrong types
+  const std::vector<ACDB_marker_idx_type> expected = {14, 15, 16, 17, 18, 19,
+                                                      24, 25, 26, 27, 28, 29};
+  std::vector<IMapMarkerPtr> actual;
+
+  // ----------------------------------------------------------
+  // Act
+  // ----------------------------------------------------------
+  markerAdapter.GetMapMarkersByFilter(filter, actual);
+
+  // ----------------------------------------------------------
+  // Assert
+  // ----------------------------------------------------------
+  TF_assert_msg(state, expected.size() == actual.size(),
+                "Nearest markers count: expected %u, actual %u", expected.size(), actual.size());
+
+  for (const auto& marker : actual) {
+    TF_assert_msg(state, find(expected.begin(), expected.end(), marker->GetId()) != expected.end(),
+                  "Nearest markers: Unexpected result %d", marker->GetId());
+  }
+}
+
+//----------------------------------------------------------------
+//!
+//!   @public
+//!   @detail
+//!         Test retrieving Boat Ramp, Business, Inlet, Bridge, Lock, Dam markers within the given
+//!         bbox.
+//!
+//----------------------------------------------------------------
+TF_TEST_AUTO_SLOW(
+    "acdb.markeradapter.get_boat_ramp_business_inlet_bridge_lock_dam_ferry_markers_nearest", 20) {
+  // ----------------------------------------------------------
+  // Arrange
+  // ----------------------------------------------------------
+  auto database = CreateDatabase(state);
+
+  PopulateDatabase(state, database);
+
+  MarkerAdapter markerAdapter{database};
+
+  bbox_type bbox = {{750, 750}, {150, 150}};
+  uint32_t typesBitmask =
+      ACDB_BOAT_RAMP | ACDB_BUSINESS | ACDB_INLET | ACDB_BRIDGE | ACDB_LOCK | ACDB_DAM | ACDB_FERRY;
+
+  MapMarkerFilter filter(bbox, typesBitmask);
+
+  // Expected:
+  // - 14, 15, 16, 17, 18, 19, 20, 24, 25, 26, 27, 28, 29, 30 should be good
+  // - all others are of wrong types
+  const std::vector<ACDB_marker_idx_type> expected = {14, 15, 16, 17, 18, 19, 20,
+                                                      24, 25, 26, 27, 28, 29, 30};
+  std::vector<IMapMarkerPtr> actual;
+
+  // ----------------------------------------------------------
+  // Act
+  // ----------------------------------------------------------
+  markerAdapter.GetMapMarkersByFilter(filter, actual);
+
+  // ----------------------------------------------------------
+  // Assert
+  // ----------------------------------------------------------
+  TF_assert_msg(state, expected.size() == actual.size(),
+                "Nearest markers count: expected %u, actual %u", expected.size(), actual.size());
+
+  for (const auto& marker : actual) {
+    TF_assert_msg(state, find(expected.begin(), expected.end(), marker->GetId()) != expected.end(),
+                  "Nearest markers: Unexpected result %d", marker->GetId());
+  }
+}
+
+//----------------------------------------------------------------
+//!
+//!   @public
+//!   @detail
+//!         Test retrieving Marinas and Anchorage markers within the given bbox.
+//!
+//----------------------------------------------------------------
+TF_TEST_AUTO_SLOW("acdb.markeradapter.get_marina_and_anchorage_markers_nearest", 20) {
+  // ----------------------------------------------------------
+  // Arrange
+  // ----------------------------------------------------------
+  auto database = CreateDatabase(state);
+
+  PopulateDatabase(state, database);
+
+  MarkerAdapter markerAdapter{database};
+
+  bbox_type bbox = {{350, 350}, {150, 150}};
+  uint32_t typesBitmask = ACDB_MARINA | ACDB_ANCHORAGE;
+
+  MapMarkerFilter filter(bbox, typesBitmask);
+
+  // Expected:
+  // - 1, 4 and 13 are outside bbox
+  // - 2, 3, 12, 21 and 22 should be good
+  // - all others are of wrong types
+  const std::vector<ACDB_marker_idx_type> expected = {2, 3, 12, 21, 22};
+  std::vector<IMapMarkerPtr> actual;
+
+  // ----------------------------------------------------------
+  // Act
+  // ----------------------------------------------------------
+  markerAdapter.GetMapMarkersByFilter(filter, actual);
+
+  // ----------------------------------------------------------
+  // Assert
+  // ----------------------------------------------------------
+  TF_assert_msg(state, expected.size() == actual.size(),
+                "Nearest markers count: expected %u, actual %u", expected.size(), actual.size());
+
+  for (const auto& marker : actual) {
+    TF_assert_msg(state, find(expected.begin(), expected.end(), marker->GetId()) != expected.end(),
+                  "Nearest markers: Unexpected result %d", marker->GetId());
+  }
+}
+
+//----------------------------------------------------------------
+//!
+//!   @public
+//!   @detail
+//!         Test retrieving Marinas, Anchorage and Hazard markers within the given bbox.
+//!
+//----------------------------------------------------------------
+TF_TEST_AUTO_SLOW("acdb.markeradapter.get_marina_anchorage_and_hazard_markers_nearest", 20) {
+  // ----------------------------------------------------------
+  // Arrange
+  // ----------------------------------------------------------
+  auto database = CreateDatabase(state);
+
+  PopulateDatabase(state, database);
+
+  MarkerAdapter markerAdapter{database};
+
+  bbox_type bbox = {{350, 350}, {150, 150}};
+  uint32_t typesBitmask = ACDB_MARINA | ACDB_ANCHORAGE | ACDB_HAZARD;
+
+  MapMarkerFilter filter(bbox, typesBitmask);
+
+  // Expected:
+  // - 1, 4 and 13, 23 are outside bbox
+  // - 2, 3, 11, 12, 21 and 22 should be good
+  // - all others are of wrong types
+  const std::vector<ACDB_marker_idx_type> expected = {2, 3, 11, 12, 21, 22};
+  std::vector<IMapMarkerPtr> actual;
+
+  // ----------------------------------------------------------
+  // Act
+  // ----------------------------------------------------------
+  markerAdapter.GetMapMarkersByFilter(filter, actual);
+
+  // ----------------------------------------------------------
+  // Assert
+  // ----------------------------------------------------------
+  TF_assert_msg(state, expected.size() == actual.size(),
+                "Nearest markers count: expected %u, actual %u", expected.size(), actual.size());
+
+  for (const auto& marker : actual) {
+    TF_assert_msg(state, find(expected.begin(), expected.end(), marker->GetId()) != expected.end(),
+                  "Nearest markers: Unexpected result %d", marker->GetId());
+  }
+}
+
+//----------------------------------------------------------------
+//!
+//!   @public
+//!   @detail
+//!         Test retrieving Marinas, Anchorage, Hazard and Local Knowledge markers within the given
+//!         bbox.
+//!
+//----------------------------------------------------------------
+TF_TEST_AUTO_SLOW(
+    "acdb.markeradapter.get_marina_anchorage_hazard_and_local_knowledge_markers_nearest", 20) {
+  // ----------------------------------------------------------
+  // Arrange
+  // ----------------------------------------------------------
+  auto database = CreateDatabase(state);
+
+  PopulateDatabase(state, database);
+
+  MarkerAdapter markerAdapter{database};
+
+  bbox_type bbox = {{350, 350}, {150, 150}};
+  uint32_t typesBitmask = ACDB_MARINA | ACDB_ANCHORAGE | ACDB_HAZARD | ACDB_ALL_LOCAL_KNOWLEDGE;
+
+  MapMarkerFilter filter(bbox, typesBitmask);
+
+  // Expected:
+  // - 1, 4 and 13, 23, 24, ..., 30 are outside bbox
+  // - 2, 3, 11, 12, 14, ... 20, 21 and 22 should be good
+  const std::vector<ACDB_marker_idx_type> expected = {2,  3,  11, 12, 14, 15, 16,
+                                                      17, 18, 19, 20, 21, 22};
+  std::vector<IMapMarkerPtr> actual;
+
+  // ----------------------------------------------------------
+  // Act
+  // ----------------------------------------------------------
+  markerAdapter.GetMapMarkersByFilter(filter, actual);
+
+  // ----------------------------------------------------------
+  // Assert
+  // ----------------------------------------------------------
+  TF_assert_msg(state, expected.size() == actual.size(),
+                "Nearest markers count: expected %u, actual %u", expected.size(), actual.size());
+
+  for (const auto& marker : actual) {
+    TF_assert_msg(state, find(expected.begin(), expected.end(), marker->GetId()) != expected.end(),
+                  "Nearest markers: Unexpected result %d", marker->GetId());
+  }
+}
+
+//----------------------------------------------------------------
+//!
+//!   @public
+//!   @detail
 //!         Test retrieving marker.
 //!
 //----------------------------------------------------------------
-TF_TEST("acdb.markeradapter.get_searchmarker") {
+TF_TEST_AUTO_SLOW("acdb.markeradapter.get_searchmarker", 30) {
   // ----------------------------------------------------------
   // Arrange
   // ----------------------------------------------------------
@@ -324,7 +966,7 @@ TF_TEST("acdb.markeradapter.get_searchmarker") {
 //!         Test retrieving marker.
 //!
 //----------------------------------------------------------------
-TF_TEST("acdb.markeradapter.get_searchmarker_noExtraInfo") {
+TF_TEST_AUTO_SLOW("acdb.markeradapter.get_searchmarker_noExtraInfo", 20) {
   // ----------------------------------------------------------
   // Arrange
   // ----------------------------------------------------------
@@ -407,7 +1049,7 @@ TF_TEST("acdb.markeradapter.get_searchmarker_noExtraInfo") {
 //!         Test retrieving invalid marker.
 //!
 //----------------------------------------------------------------
-TF_TEST("acdb.markeradapter.get_searchmarker_invalid") {
+TF_TEST_AUTO_SLOW("acdb.markeradapter.get_searchmarker_invalid", 20) {
   // ----------------------------------------------------------
   // Arrange
   // ----------------------------------------------------------
@@ -438,7 +1080,7 @@ TF_TEST("acdb.markeradapter.get_searchmarker_invalid") {
 //!         Test retrieving nearest markers.
 //!
 //----------------------------------------------------------------
-TF_TEST("acdb.markeradapter.get_searchmarker_filter_by_bbox_only") {
+TF_TEST_AUTO_SLOW("acdb.markeradapter.get_searchmarker_filter_by_bbox_only", 20) {
   // ----------------------------------------------------------
   // Arrange
   // ----------------------------------------------------------
@@ -487,7 +1129,7 @@ TF_TEST("acdb.markeradapter.get_searchmarker_filter_by_bbox_only") {
 //!         Test retrieving nearest markers.
 //!
 //----------------------------------------------------------------
-TF_TEST("acdb.markeradapter.get_searchmarker_filter_by_bbox_and_name") {
+TF_TEST_AUTO_SLOW("acdb.markeradapter.get_searchmarker_filter_by_bbox_and_name", 30) {
   // ----------------------------------------------------------
   // Arrange
   // ----------------------------------------------------------
@@ -536,10 +1178,112 @@ TF_TEST("acdb.markeradapter.get_searchmarker_filter_by_bbox_and_name") {
 //!
 //!   @public
 //!   @detail
+//!         Test retrieving nearest markers by name using SearchMarkerFilter constructor.
+//!
+//----------------------------------------------------------------
+TF_TEST_AUTO_SLOW(
+    "acdb.markeradapter.get_searchmarker_filter_by_bbox_and_name_search_marker_filter_constructor",
+    30) {
+  // ----------------------------------------------------------
+  // Arrange
+  // ----------------------------------------------------------
+  auto database = CreateDatabase(state);
+
+  PopulateDatabase(state, database);
+
+  MarkerAdapter markerAdapter{database};
+  TranslationUtil translationUtil{state};
+
+  bbox_type bbox = {{350, 350}, {150, 150}};
+  uint32_t typesBitmask = ACDB_MARINA;
+  const std::string searchString = "Another";
+
+  SearchMarkerFilter markerFilter(bbox, typesBitmask, searchString);
+
+  // Expected:
+  // - 1 and 4 are outside bbox
+  // - 5 is inside bbox but wrong type
+  // - 2 and 3 are inside, but the name does not match
+  // - 21 and 22 should be good
+  const std::vector<ACDB_marker_idx_type> expected = {21, 22};
+  std::vector<ISearchMarkerPtr> actual;
+
+  // ----------------------------------------------------------
+  // Act
+  // ----------------------------------------------------------
+  markerAdapter.GetSearchMarkersByFilter(markerFilter, actual);
+
+  // ----------------------------------------------------------
+  // Assert
+  // ----------------------------------------------------------
+  TF_assert_msg(state, expected.size() == actual.size(),
+                "Search markers by Bbox: expected %d, actual = %d", expected.size(), actual.size());
+  for (const auto& marker : actual) {
+    TF_assert_msg(state, find(expected.begin(), expected.end(), marker->GetId()) != expected.end(),
+                  "Search markers by Bbox: Unexpected result %d", marker->GetId());
+  }
+}
+
+//----------------------------------------------------------------
+//!
+//!   @public
+//!   @detail
+//!         Test retrieving nearest markers by name and number of results using SearchMarkerFilter
+//!         constructor.
+//!
+//----------------------------------------------------------------
+TF_TEST_AUTO_SLOW(
+    "acdb.markeradapter.get_searchmarker_filter_by_bbox_and_name_and_max_results_search_marker_filter_constructor",
+    20) {
+  // ----------------------------------------------------------
+  // Arrange
+  // ----------------------------------------------------------
+  auto database = CreateDatabase(state);
+
+  PopulateDatabase(state, database);
+
+  MarkerAdapter markerAdapter{database};
+  TranslationUtil translationUtil{state};
+
+  bbox_type bbox = {{350, 350}, {150, 150}};
+  uint32_t typesBitmask = ACDB_MARINA;
+  const std::string searchString = "Test Marina";
+  const int32_t maxResults = 2;
+
+  SearchMarkerFilter markerFilter(bbox, typesBitmask, searchString, maxResults);
+
+  // Expected:
+  // - 1, 4, 5, 6, 7, 8, 9, 10 are outside bbox
+  // - 21 and 22 shouldn't get in the final result list hence maxResults
+  // - 2, 3 should be good
+  // - all others are of wrong types
+  const std::vector<ACDB_marker_idx_type> expected = {2, 3};
+  std::vector<ISearchMarkerPtr> actual;
+
+  // ----------------------------------------------------------
+  // Act
+  // ----------------------------------------------------------
+  markerAdapter.GetSearchMarkersByFilter(markerFilter, actual);
+
+  // ----------------------------------------------------------
+  // Assert
+  // ----------------------------------------------------------
+  TF_assert_msg(state, expected.size() == actual.size(),
+                "Search markers by Bbox: expected %d, actual = %d", expected.size(), actual.size());
+  for (const auto& marker : actual) {
+    TF_assert_msg(state, find(expected.begin(), expected.end(), marker->GetId()) != expected.end(),
+                  "Search markers by Bbox: Unexpected result %d", marker->GetId());
+  }
+}
+
+//----------------------------------------------------------------
+//!
+//!   @public
+//!   @detail
 //!         Test retrieving nearest markers.
 //!
 //----------------------------------------------------------------
-TF_TEST("acdb.markeradapter.get_searchmarker_filter_by_bbox_and_name_and_category") {
+TF_TEST_AUTO_SLOW("acdb.markeradapter.get_searchmarker_filter_by_bbox_and_name_and_category", 30) {
   // ----------------------------------------------------------
   // Arrange
   // ----------------------------------------------------------

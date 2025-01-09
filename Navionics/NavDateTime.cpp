@@ -1036,8 +1036,8 @@ bool NavDateTime::FromFormattedString(const NavString& inFormattedDate) {
 
       // token type string
       NavString token_type = inFormattedDate.substr(*it, delimiterLen);
-      for (int i = 0; i < number_of_elements(delimiters); ++i) {
-        if (token_type == delimiters[i]) {
+      for (const auto& delimeter : delimiters) {
+        if (token_type == delimeter) {
           NavString token_value = inFormattedDate.substr(tokenPos, tokenLen);
           tokens.push_back(make_pair(token_value, token_type));
           break;

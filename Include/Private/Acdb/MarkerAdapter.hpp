@@ -49,6 +49,9 @@ class MarkerAdapter {
 
   ISearchMarkerPtr GetSearchMarker(const ACDB_marker_idx_type aIdx);
 
+  void GetBasicSearchMarkersByFilter(const SearchMarkerFilter& aFilter,
+                                     std::vector<ISearchMarkerPtr>& aResults);
+
   void GetSearchMarkersByFilter(const SearchMarkerFilter& aFilter,
                                 std::vector<ISearchMarkerPtr>& aResults);
 

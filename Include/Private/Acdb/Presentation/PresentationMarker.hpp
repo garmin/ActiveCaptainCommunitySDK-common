@@ -19,7 +19,7 @@ limitations under the License.
     @brief Contains functionality related to
     ActiveCaptain markers.
 
-    Copyright 2017-2018 by Garmin Ltd. or its subsidiaries.
+    Copyright 2017 by Garmin Ltd. or its subsidiaries.
 */
 
 #ifndef ACDB_PresentationMarker_hpp
@@ -57,7 +57,7 @@ class PresentationMarker : public IPresentationMarker {
                      FuelPtr aFuel, MooringsPtr aMoorings, NavigationPtr aNavigation,
                      RetailPtr aRetail, ReviewDetailPtr aReviewDetail, ServicesPtr aServices);
 
-  ACDB_marker_idx_type GetId() const;
+  ACDB_marker_idx_type GetId() const override;
 
   const Address* GetAddress() const;
 

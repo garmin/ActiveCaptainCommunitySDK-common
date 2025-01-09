@@ -27,6 +27,8 @@ limitations under the License.
 #include "NavDateTime.h"
 #include "NavString.h"
 
+#include <cstdint>
+
 namespace Acdb {
 using namespace Navionics;
 

@@ -572,6 +572,40 @@ bool Repository::GetMergeReviews(const ACDB_marker_idx_type aIdx,
 //!    Find points matching the provided filter
 //!
 //----------------------------------------------------------------
+void Repository::GetBasicSearchMarkersByFilter(const SearchMarkerFilter& aFilter,
+                                               std::vector<ISearchMarkerPtr>& aResults) {
+  RwlLocker locker{mRwl, false};
+  if (!mDatabase) {
+    return;
+  }
+
+  bbox_type leftBbox;
+  bbox_type rightBbox;
+  if (MakeSplitBoundingBoxForCrossMeridianSearch(aFilter.GetBbox(), leftBbox, rightBbox)) {
+    SearchMarkerFilter adaptedFilter = aFilter;
+
+    std::vector<ISearchMarkerPtr> leftResults;
+    adaptedFilter.SetBbox(leftBbox);
+    mMarkerAdapter->GetBasicSearchMarkersByFilter(adaptedFilter, leftResults);
+
+    std::vector<ISearchMarkerPtr> rightResults;
+    adaptedFilter.SetBbox(rightBbox);
+    mMarkerAdapter->GetBasicSearchMarkersByFilter(adaptedFilter, rightResults);
+
+    std::move(leftResults.begin(), leftResults.end(), std::back_inserter(aResults));
+    std::move(rightResults.begin(), rightResults.end(), std::back_inserter(aResults));
+  } else {
+    mMarkerAdapter->GetBasicSearchMarkersByFilter(aFilter, aResults);
+  }
+}  // end of GetBasicSearchMarkersByFilter
+
+//----------------------------------------------------------------
+//!
+//!    @public
+//!    @detail
+//!    Find points matching the provided filter
+//!
+//----------------------------------------------------------------
 void Repository::GetSearchMarkersByFilter(const SearchMarkerFilter& aFilter,
                                           std::vector<ISearchMarkerPtr>& aResults) {
   RwlLocker locker{mRwl, false};

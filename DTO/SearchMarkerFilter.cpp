@@ -41,6 +41,20 @@ SearchMarkerFilter::SearchMarkerFilter() : mBaseFilter() {}
 //----------------------------------------------------------------
 //!
 //!   @public
+//!   @brief Constructor
+//!
+//----------------------------------------------------------------
+SearchMarkerFilter::SearchMarkerFilter(const bbox_type& aBbox, uint32_t aTypesBitmask,
+                                       const std::string& aSearchString,
+                                       int32_t aMaxResults /* = -1 */)
+    : mBaseFilter(aBbox, aTypesBitmask) {
+  SetSearchString(aSearchString);
+  SetMaxResults(aMaxResults);
+}
+
+//----------------------------------------------------------------
+//!
+//!   @public
 //!   @brief Accessor
 //!
 //!   @return filter bounding box

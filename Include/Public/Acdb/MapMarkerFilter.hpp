@@ -31,7 +31,7 @@ namespace Acdb {
 //! Creates a type marker type filter for ActiveCaptain point searches
 class MapMarkerFilter {
  public:
-  MapMarkerFilter(ACDB_marker_filter_type const* aFilter);
+  MapMarkerFilter(const bbox_type& aBbox, uint32_t aTypesBitmask);
 
   MapMarkerFilter();
 

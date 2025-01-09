@@ -39,8 +39,11 @@ class SearchMarkerQuery {
 
   bool Get(const ACDB_marker_idx_type aId, ExtendedMarkerDataType& aResultOut);
 
-  bool GetFiltered(const SearchMarkerFilter& aFilter,
-                   std::vector<ExtendedMarkerDataType>& aResultOut);
+  bool GetBasicFiltered(const SearchMarkerFilter& aFilter,
+                        std::vector<MarkerTableDataType>& aResultOut);
+
+  bool GetExtendedFiltered(const SearchMarkerFilter& aFilter,
+                           std::vector<ExtendedMarkerDataType>& aResultOut);
 
  private:
   SQLite::Database& mDatabase;

@@ -104,6 +104,31 @@ MapMarkerPtr GetMapMarker(MarkerTableDataType& aMarkerData) {
 //!   @return pointer to a SearchMarker object
 //!
 //----------------------------------------------------------------
+SearchMarkerPtr GetSearchMarker(MarkerTableDataType& aMarkerData) {
+  MapIconType mapIcon = GetMapIcon(aMarkerData.mType, aMarkerData.mBusinessProgramTier);
+
+  TextHandle markerTypeTextHandle = GetMarkerTypeTextHandle(aMarkerData.mType);
+  std::string localizedType =
+      TextTranslator::GetInstance().Find(static_cast<ACDB_text_handle_type>(markerTypeTextHandle));
+
+  auto marker = SearchMarkerPtr(new SearchMarker(
+      aMarkerData.mId, aMarkerData.mType, aMarkerData.mLastUpdated, std::move(aMarkerData.mName),
+      aMarkerData.mPosn.lat, aMarkerData.mPosn.lon, mapIcon, std::move(localizedType)));
+
+  return marker;
+}  // End of GetSearchMarker
+
+//----------------------------------------------------------------
+//!
+//!   @public
+//!   @detail
+//!         Creates the correct specific Marker child
+//!         class based on the passed in information.
+//!         The marker returned by this function is not
+//!         capable of generating a full content view.
+//!   @return pointer to a SearchMarker object
+//!
+//----------------------------------------------------------------
 SearchMarkerPtr GetSearchMarker(ExtendedMarkerDataType& aMarkerData) {
   MapIconType mapIcon = GetMapIcon(aMarkerData.mType, aMarkerData.mBusinessProgramTier);
 

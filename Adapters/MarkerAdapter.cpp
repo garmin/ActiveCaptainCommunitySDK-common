@@ -116,14 +116,31 @@ ISearchMarkerPtr MarkerAdapter::GetSearchMarker(const ACDB_marker_idx_type aIdx)
 //!    Find points in the provided bounding box.
 //!
 //----------------------------------------------------------------
-void MarkerAdapter::GetSearchMarkersByFilter(const SearchMarkerFilter& aFilter,
-                                             std::vector<ISearchMarkerPtr>& aResults) {
-  std::vector<ExtendedMarkerDataType> markerList;
-  if (mSearchMarker.GetFiltered(aFilter, markerList)) {
+void MarkerAdapter::GetBasicSearchMarkersByFilter(const SearchMarkerFilter& aFilter,
+                                                  std::vector<ISearchMarkerPtr>& aResults) {
+  std::vector<MarkerTableDataType> markerList;
+  if (mSearchMarker.GetBasicFiltered(aFilter, markerList)) {
     for (auto& it : markerList) {
       aResults.push_back(Acdb::GetSearchMarker(it));
     }
   }
-}  // end of GetFiltered
+}  // end of GetBasicSearchMarkersByFilter
+
+//----------------------------------------------------------------
+//!
+//!    @public
+//!    @detail
+//!    Find points in the provided bounding box.
+//!
+//----------------------------------------------------------------
+void MarkerAdapter::GetSearchMarkersByFilter(const SearchMarkerFilter& aFilter,
+                                             std::vector<ISearchMarkerPtr>& aResults) {
+  std::vector<ExtendedMarkerDataType> markerList;
+  if (mSearchMarker.GetExtendedFiltered(aFilter, markerList)) {
+    for (auto& it : markerList) {
+      aResults.push_back(Acdb::GetSearchMarker(it));
+    }
+  }
+}  // end of GetSearchMarkersByFilter
 
 }  // end of namespace Acdb

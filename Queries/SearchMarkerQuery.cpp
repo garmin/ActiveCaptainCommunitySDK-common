@@ -44,7 +44,17 @@ static const std::string ReadSql{
     "    LEFT OUTER JOIN reviews rv ON m.id = rv.markerId "
     "WHERE m.id = ? "
     "GROUP BY m.id;"};
-static const std::string ReadFilteredSql{
+static const std::string ReadBasicFilteredSql{
+    "SELECT m.id, m.poi_type, m.lastUpdate, m.name, m.searchFilter, ri.minLon, ri.minLat, COALESCE(bp.programTier, -1) programTier "
+    "FROM markers m "
+    "    INNER JOIN rIndex ri ON m.Id = ri.Id LEFT JOIN businessProgram bp ON m.Id = bp.Id "
+    "WHERE minLon > ? AND maxLon < ? "
+    "    AND minLat > ? AND maxLat < ? "
+    "    AND m.poi_type & ? "
+    "    AND m.searchFilter & ? "
+    "    AND m.name LIKE ? "
+    "LIMIT ?;"};
+static const std::string ReadExtendedFilteredSql{
     "SELECT m.id, m.poi_type, m.lastUpdate, m.name, ri.minLon, ri.minLat, COALESCE(bp.programTier, -1) programTier, "
     "       AVG(rv.rating), COUNT(rv.markerId), "
     "       c.phone, c.vhfChannel, "
@@ -159,11 +169,83 @@ bool SearchMarkerQuery::Get(const ACDB_marker_idx_type aId, ExtendedMarkerDataTy
 //!
 //!   @public
 //!   @detail Get a list of item records based on the specified
-//!   filer.
+//!   filter.
 //!
 //----------------------------------------------------------------
-bool SearchMarkerQuery::GetFiltered(const SearchMarkerFilter& aFilter,
-                                    std::vector<ExtendedMarkerDataType>& aResultOut) {
+bool SearchMarkerQuery::GetBasicFiltered(const SearchMarkerFilter& aFilter,
+                                         std::vector<MarkerTableDataType>& aResultOut) {
+  enum Parameters { MinLon = 1, MaxLon, MinLat, MaxLat, PoiType, SearchFilter, Name, Limit };
+  enum Columns {
+    ColId = 0,
+    ColPoiType,
+    LastUpdate,
+    ColName,
+    ColSearchFilter,
+    ColMinLon,
+    ColMinLat,
+    ProgramTier
+  };
+
+  bool success = false;
+
+  try {
+    SQLite::Statement readBasicFiltered{mDatabase, ReadBasicFilteredSql};
+    readBasicFiltered.bind(Parameters::MinLon, aFilter.GetBbox().swc.lon);
+    readBasicFiltered.bind(Parameters::MaxLon, aFilter.GetBbox().nec.lon);
+    readBasicFiltered.bind(Parameters::MinLat, aFilter.GetBbox().swc.lat);
+    readBasicFiltered.bind(Parameters::MaxLat, aFilter.GetBbox().nec.lat);
+    readBasicFiltered.bind(Parameters::PoiType, aFilter.GetAllowedTypes());
+    readBasicFiltered.bind(Parameters::SearchFilter,
+                           static_cast<int64_t>(aFilter.GetAllowedCategories()));
+
+    const std::string WILDCARD{"%"};
+    std::string searchExpression;
+
+    if (aFilter.GetSearchString().empty()) {
+      searchExpression = WILDCARD;
+    } else if (aFilter.GetStringMatchMode() == SearchMarkerFilter::MatchBeginningOfWord) {
+      searchExpression = aFilter.GetSearchString() + WILDCARD;
+    } else {
+      searchExpression = WILDCARD + aFilter.GetSearchString() + WILDCARD;
+    }
+
+    readBasicFiltered.bind(Parameters::Name, searchExpression);
+    readBasicFiltered.bind(Parameters::Limit, aFilter.GetMaxResults());
+
+    while (readBasicFiltered.executeStep()) {
+      MarkerTableDataType result;
+      result.mId = readBasicFiltered.getColumn(Columns::ColId).getInt64();
+      result.mType = readBasicFiltered.getColumn(Columns::ColPoiType).getInt();
+      result.mLastUpdated = readBasicFiltered.getColumn(Columns::LastUpdate).getInt64();
+      result.mName = readBasicFiltered.getColumn(Columns::ColName).getText();
+      result.mSearchFilter = readBasicFiltered.getColumn(Columns::ColSearchFilter).getInt64();
+      result.mPosn.lon = readBasicFiltered.getColumn(Columns::ColMinLon).getUInt();
+      result.mPosn.lat = readBasicFiltered.getColumn(Columns::ColMinLat).getUInt();
+      result.mBusinessProgramTier = readBasicFiltered.getColumn(Columns::ProgramTier).getInt();
+
+      aResultOut.push_back(std::move(result));
+    }
+
+    success = !aResultOut.empty();
+
+    readBasicFiltered.reset();
+  } catch (const SQLite::Exception& e) {
+    DBG_W("SQLite Exception: %i %s", e.getErrorCode(), e.getErrorStr());
+    success = false;
+  }
+
+  return success;
+}  // End of GetBasicFiltered
+
+//----------------------------------------------------------------
+//!
+//!   @public
+//!   @detail Get a list of item records based on the specified
+//!   filter.
+//!
+//----------------------------------------------------------------
+bool SearchMarkerQuery::GetExtendedFiltered(const SearchMarkerFilter& aFilter,
+                                            std::vector<ExtendedMarkerDataType>& aResultOut) {
   enum Parameters { MinLon = 1, MaxLon, MinLat, MaxLat, PoiType, SearchFilter, Name, Limit };
   enum Columns {
     ColId = 0,
@@ -185,14 +267,14 @@ bool SearchMarkerQuery::GetFiltered(const SearchMarkerFilter& aFilter,
   bool success = false;
 
   try {
-    SQLite::Statement readFiltered{mDatabase, ReadFilteredSql};
-    readFiltered.bind(Parameters::MinLon, aFilter.GetBbox().swc.lon);
-    readFiltered.bind(Parameters::MaxLon, aFilter.GetBbox().nec.lon);
-    readFiltered.bind(Parameters::MinLat, aFilter.GetBbox().swc.lat);
-    readFiltered.bind(Parameters::MaxLat, aFilter.GetBbox().nec.lat);
-    readFiltered.bind(Parameters::PoiType, aFilter.GetAllowedTypes());
-    readFiltered.bind(Parameters::SearchFilter,
-                      static_cast<int64_t>(aFilter.GetAllowedCategories()));
+    SQLite::Statement readExtendedFiltered{mDatabase, ReadExtendedFilteredSql};
+    readExtendedFiltered.bind(Parameters::MinLon, aFilter.GetBbox().swc.lon);
+    readExtendedFiltered.bind(Parameters::MaxLon, aFilter.GetBbox().nec.lon);
+    readExtendedFiltered.bind(Parameters::MinLat, aFilter.GetBbox().swc.lat);
+    readExtendedFiltered.bind(Parameters::MaxLat, aFilter.GetBbox().nec.lat);
+    readExtendedFiltered.bind(Parameters::PoiType, aFilter.GetAllowedTypes());
+    readExtendedFiltered.bind(Parameters::SearchFilter,
+                              static_cast<int64_t>(aFilter.GetAllowedCategories()));
 
     const std::string WILDCARD{"%"};
     std::string searchExpression;
@@ -205,51 +287,54 @@ bool SearchMarkerQuery::GetFiltered(const SearchMarkerFilter& aFilter,
       searchExpression = WILDCARD + aFilter.GetSearchString() + WILDCARD;
     }
 
-    readFiltered.bind(Parameters::Name, searchExpression);
-    readFiltered.bind(Parameters::Limit, aFilter.GetMaxResults());
+    readExtendedFiltered.bind(Parameters::Name, searchExpression);
+    readExtendedFiltered.bind(Parameters::Limit, aFilter.GetMaxResults());
 
-    while (readFiltered.executeStep()) {
+    while (readExtendedFiltered.executeStep()) {
       ExtendedMarkerDataType result;
-      result.mId = readFiltered.getColumn(Columns::ColId).getInt64();
-      result.mType = readFiltered.getColumn(Columns::ColPoiType).getInt();
-      result.mLastUpdated = readFiltered.getColumn(Columns::LastUpdate).getInt64();
-      result.mName = readFiltered.getColumn(Columns::ColName).getText();
-      result.mPosn.lon = readFiltered.getColumn(Columns::ColMinLon).getUInt();
-      result.mPosn.lat = readFiltered.getColumn(Columns::ColMinLat).getUInt();
-      result.mBusinessProgramTier = readFiltered.getColumn(Columns::ProgramTier).getInt();
+      result.mId = readExtendedFiltered.getColumn(Columns::ColId).getInt64();
+      result.mType = readExtendedFiltered.getColumn(Columns::ColPoiType).getInt();
+      result.mLastUpdated = readExtendedFiltered.getColumn(Columns::LastUpdate).getInt64();
+      result.mName = readExtendedFiltered.getColumn(Columns::ColName).getText();
+      result.mPosn.lon = readExtendedFiltered.getColumn(Columns::ColMinLon).getUInt();
+      result.mPosn.lat = readExtendedFiltered.getColumn(Columns::ColMinLat).getUInt();
+      result.mBusinessProgramTier = readExtendedFiltered.getColumn(Columns::ProgramTier).getInt();
 
-      if (!readFiltered.isColumnNull(Columns::AvgRating)) {
+      if (!readExtendedFiltered.isColumnNull(Columns::AvgRating)) {
         result.mReviewStatsData.mAverageRating =
-            static_cast<float>(readFiltered.getColumn(Columns::AvgRating).getDouble());
+            static_cast<float>(readExtendedFiltered.getColumn(Columns::AvgRating).getDouble());
       }
 
-      if (!readFiltered.isColumnNull(Columns::ReviewCount)) {
+      if (!readExtendedFiltered.isColumnNull(Columns::ReviewCount)) {
         result.mReviewStatsData.mNumberOfReviews =
-            readFiltered.getColumn(Columns::ReviewCount).getInt();
+            readExtendedFiltered.getColumn(Columns::ReviewCount).getInt();
       }
 
-      if (!readFiltered.isColumnNull(Columns::Phone)) {
-        result.mContactData.mPhoneNumber = readFiltered.getColumn(Columns::Phone).getText();
+      if (!readExtendedFiltered.isColumnNull(Columns::Phone)) {
+        result.mContactData.mPhoneNumber = readExtendedFiltered.getColumn(Columns::Phone).getText();
       }
 
-      if (!readFiltered.isColumnNull(Columns::VhfChannel)) {
-        result.mContactData.mVhfChannel = readFiltered.getColumn(Columns::VhfChannel).getText();
+      if (!readExtendedFiltered.isColumnNull(Columns::VhfChannel)) {
+        result.mContactData.mVhfChannel =
+            readExtendedFiltered.getColumn(Columns::VhfChannel).getText();
       }
 
-      if (!readFiltered.isColumnNull(Columns::Currency) &&
-          !readFiltered.isColumnNull(Columns::VolumeUnit)) {
-        if (!readFiltered.isColumnNull(Columns::GasPrice)) {
+      if (!readExtendedFiltered.isColumnNull(Columns::Currency) &&
+          !readExtendedFiltered.isColumnNull(Columns::VolumeUnit)) {
+        if (!readExtendedFiltered.isColumnNull(Columns::GasPrice)) {
           result.mFuelData.mGasPrice =
-              static_cast<float>(readFiltered.getColumn(Columns::GasPrice).getDouble());
+              static_cast<float>(readExtendedFiltered.getColumn(Columns::GasPrice).getDouble());
         }
 
-        if (!readFiltered.isColumnNull(Columns::DieselPrice)) {
+        if (!readExtendedFiltered.isColumnNull(Columns::DieselPrice)) {
           result.mFuelData.mDieselPrice =
-              static_cast<float>(readFiltered.getColumn(Columns::DieselPrice).getDouble());
+              static_cast<float>(readExtendedFiltered.getColumn(Columns::DieselPrice).getDouble());
         }
 
-        result.mFuelData.mFuelPriceCurrency = readFiltered.getColumn(Columns::Currency).getText();
-        result.mFuelData.mFuelPriceUnit = readFiltered.getColumn(Columns::VolumeUnit).getUInt();
+        result.mFuelData.mFuelPriceCurrency =
+            readExtendedFiltered.getColumn(Columns::Currency).getText();
+        result.mFuelData.mFuelPriceUnit =
+            readExtendedFiltered.getColumn(Columns::VolumeUnit).getUInt();
       }
 
       aResultOut.push_back(std::move(result));
@@ -262,5 +347,5 @@ bool SearchMarkerQuery::GetFiltered(const SearchMarkerFilter& aFilter,
   }
 
   return success;
-}  // End of GetSearchMarkersByFilter
+}  // End of GetExtendedFiltered
 }  // end of namespace Acdb

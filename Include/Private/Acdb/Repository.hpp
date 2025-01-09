@@ -79,6 +79,9 @@ class Repository {
 
   void GetMapMarkersByFilter(const MapMarkerFilter& aFilter, std::vector<IMapMarkerPtr>& aResults);
 
+  void GetBasicSearchMarkersByFilter(const SearchMarkerFilter& aFilter,
+                                     std::vector<ISearchMarkerPtr>& aResults);
+
   void GetSearchMarkersByFilter(const SearchMarkerFilter& aFilter,
                                 std::vector<ISearchMarkerPtr>& aResults);
 

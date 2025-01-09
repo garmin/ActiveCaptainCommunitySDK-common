@@ -73,6 +73,9 @@ enum {
   ACDB_FERRY = 1 << 12,
   // ACDB_AIRPORT = 1 << 13,           -> deprecated type.
 
+  ACDB_ALL_LOCAL_KNOWLEDGE =
+      ACDB_BOAT_RAMP | ACDB_BUSINESS | ACDB_INLET | ACDB_BRIDGE | ACDB_LOCK | ACDB_DAM | ACDB_FERRY,
+
   // Leave most significant but clear to avoid an "ISO C restricts enumerator values..." error.
   ACDB_ALL_TYPES = 0x7FFFFFFF
 };
